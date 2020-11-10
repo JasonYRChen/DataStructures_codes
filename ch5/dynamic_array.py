@@ -31,8 +31,7 @@ class Array:
         self._array[self.num_element] = item
         self.num_element += 1
 
-    @staticmethod
-    def _new_array_size(num_element):
+    def _new_array_size(self, num_element):
         return 2 ** ceil(log2(num_element))
 
 
