@@ -16,9 +16,11 @@ class Array:
         return self.num_element
 
     def __getitem__(self, item):
+        if isinstance(item, slice):
+            return self._array[item]
         if 0 <= item < self.num_element:
             return self._array[item]
-        elif item <= -1:
+        elif -self.num_element <= item <= -1:
             return self._array[self.num_element+item]
         else:
             raise IndexError('Invalid index')
@@ -36,11 +38,12 @@ class Array:
 
 
 a = Array(1, 2, 3, 4, 5)
-print(f"array id: {id(a._array)}, array_size: {a.array_size}, element numbers: {len(a)}, size of array: {getsizeof(a._array)}")
-print(f"repr. array: {a}")
-print(f"real array: {a._array}", end='\n\n')
-for n in range(100, 105):
-    a.append(n)
-    print(f"array id: {id(a._array)}, array_size: {a.array_size}, element numbers: {len(a)}, size of array: {getsizeof(a._array)}")
-    print(f"repr. array: {a}")
-    print(f"real array: {a._array}", end='\n\n')
+print(a[1:])
+# print(f"array id: {id(a._array)}, array_size: {a.array_size}, element numbers: {len(a)}, size of array: {getsizeof(a._array)}")
+# print(f"repr. array: {a}")
+# print(f"real array: {a._array}", end='\n\n')
+# for n in range(100, 105):
+#     a.append(n)
+#     print(f"array id: {id(a._array)}, array_size: {a.array_size}, element numbers: {len(a)}, size of array: {getsizeof(a._array)}")
+#     print(f"repr. array: {a}")
+#     print(f"real array: {a._array}", end='\n\n')
