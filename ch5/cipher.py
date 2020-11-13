@@ -36,10 +36,11 @@ class AlphaShiftCipher:
         return ''.join(self._base_chars)
 
 
-code = AlphaShiftCipher(5)
-words = 'This is a test for cipher.'
-print('Lookup table:', code.lookup_table())
-encrypt = code.encrypt(words)
-print('Encrypted message:', encrypt)
-decrypt = code.decrypt(encrypt)
-print('Original message: ', decrypt)
+if __name__ == '__main__':
+    code = AlphaShiftCipher(5)
+    words = 'This is a test for cipher.'
+    print('Lookup table:', code.lookup_table())
+    encrypt = code.encrypt(words)
+    print('Encrypted message:', encrypt)
+    decrypt = code.decrypt(encrypt)
+    print('Original message: ', decrypt)
