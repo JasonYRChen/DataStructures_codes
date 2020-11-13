@@ -18,6 +18,9 @@ class ScoreManagement:
         output = '\n'.join(output)
         return f'{output}'
 
+    def __getitem__(self, item):
+        return self._players[item]
+
     def register(self, new_player):
         for i, player in enumerate(self._players):
             if new_player.score > player.score:
