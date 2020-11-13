@@ -1,8 +1,5 @@
-from random import randrange
-
-
 # O(n^2) running time
-def inner_sort(array, descending=True):
+def inplace_sort(array, descending=True):
     compare = (lambda x, y: x > y) if descending else (lambda x, y: x < y)
 
     for i in range(1, len(array)):
@@ -13,6 +10,9 @@ def inner_sort(array, descending=True):
 
 
 if __name__ == '__main__':
+    from random import randrange
+
+    # Test of insert_sort function
     array = [randrange(-10, 10) for _ in range(5)]
-    print(array)
-    print(inner_sort(array, False))
+    print('Original array:', array)
+    print('Sorted array:  ', inplace_sort(array, False))
