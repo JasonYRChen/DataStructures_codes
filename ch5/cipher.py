@@ -1,11 +1,11 @@
 from string import ascii_letters as al
 from random import sample
 
-al = al + ' .!?@#$%^&*()-_+=><,/\\:;\'"][{}|~'
+AL = al + ' .!?@#$%^&*()-_+=><,/\\:;\'"][{}|~'
 
 
 class AlphaShiftCipher:
-    def __init__(self, shift, base_chars=al):
+    def __init__(self, shift, base_chars=AL):
         self._shift = shift
         self._base_chars = sample(base_chars, k=len(base_chars))
         self._mod = len(self._base_chars)

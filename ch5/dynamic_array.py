@@ -37,13 +37,14 @@ class Array:
         return 2 ** ceil(log2(num_element))
 
 
-a = Array(1, 2, 3, 4, 5)
-# print(a[1:])
-print(f"array id: {id(a._array)}, array_size: {a.array_size}, element numbers: {len(a)}, size of array: {getsizeof(a._array)}")
-print(f"repr. array: {a}")
-print(f"real array: {a._array}", end='\n\n')
-for n in range(100, 105):
-    a.append(n)
+if __name__ == '__main__':
+    a = Array(1, 2, 3, 4, 5)
+    # print(a[1:])
     print(f"array id: {id(a._array)}, array_size: {a.array_size}, element numbers: {len(a)}, size of array: {getsizeof(a._array)}")
     print(f"repr. array: {a}")
     print(f"real array: {a._array}", end='\n\n')
+    for n in range(100, 105):
+        a.append(n)
+        print(f"array id: {id(a._array)}, array_size: {a.array_size}, element numbers: {len(a)}, size of array: {getsizeof(a._array)}")
+        print(f"repr. array: {a}")
+        print(f"real array: {a._array}", end='\n\n')
