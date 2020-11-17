@@ -178,3 +178,4 @@ if __name__ == '__main__':
     a.remove(0)
     print(a)
     print(a._full_array(), end='\n\n')
+    
