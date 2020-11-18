@@ -114,30 +114,30 @@ class Dequeue:
 
     def _shrink(self):
         """shrink self._array if real size is half smaller than len(self._array) and rearrange array"""
-        if len(self) <= len(self._array) // 2:
+        if len(self) <= len(self._array) // 4:
             self._array = self._make_array(self._array)
 
     def pop(self):
-        head, end = self._head, self._end
-        if self._array[head] is None:
+        head, end, array = self._head, self._end, self._array
+        if array[head] is None:
             raise ValueError('Empty dequeue.')
-        item = self._array[end]
-        self._array[end] = None
-        self._end = (end - 1) % len(self._array)
-        if self._array[head] is None:
-            self._head = self._end = 0
+        item = array[end]
+        array[end] = None
+        self._end = (end - 1) % len(array)
+        if array[head] is None:
+            self._head = self._end = 1
         self._shrink()
         return item
 
     def popleft(self):
-        head, end = self._head, self._end
-        if self._array[end] is None:
+        head, end, array = self._head, self._end, self._array
+        if array[end] is None:
             raise ValueError('Empty dequeue.')
-        item = self._array[head]
-        self._array[head] = None
-        self._head = (head + 1) % len(self._array)
-        if self._array[end] is None:
-            self._head = self._end = 0
+        item = array[head]
+        array[head] = None
+        self._head = (head + 1) % len(array)
+        if array[end] is None:
+            self._head = self._end = 1
         self._shrink()
         return item
 
@@ -178,4 +178,22 @@ if __name__ == '__main__':
     a.remove(0)
     print(a)
     print(a._full_array(), end='\n\n')
-    
+    a.append(100)
+    a.append(200)
+    a.append(300)
+    a.appendleft(-100)
+    a.appendleft(-200)
+    a.appendleft(-300)
+    print(a)
+    print(a._full_array(), end='\n\n')
+    print('pop:', a.pop())
+    print('pop:', a.pop())
+    print('pop:', a.pop())
+    print('pop:', a.pop())
+    print('pop:', a.pop())
+    print('pop:', a.pop())
+    print('pop:', a.popleft())
+    print('pop:', a.pop())
+    print('pop:', a.pop())
+    print(a)
+    print(a._full_array(), end='\n\n')
