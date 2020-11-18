@@ -124,8 +124,6 @@ class Dequeue:
         item = array[end]
         array[end] = None
         self._end = (end - 1) % len(array)
-        if array[head] is None:
-            self._head = self._end = 1
         self._shrink()
         return item
 
@@ -136,8 +134,6 @@ class Dequeue:
         item = array[head]
         array[head] = None
         self._head = (head + 1) % len(array)
-        if array[end] is None:
-            self._head = self._end = 1
         self._shrink()
         return item
 
@@ -187,13 +183,21 @@ if __name__ == '__main__':
     print(a)
     print(a._full_array(), end='\n\n')
     print('pop:', a.pop())
-    print('pop:', a.pop())
-    print('pop:', a.pop())
-    print('pop:', a.pop())
-    print('pop:', a.pop())
-    print('pop:', a.pop())
     print('pop:', a.popleft())
-    print('pop:', a.pop())
-    print('pop:', a.pop())
+    print('pop:', a.popleft())
+    print('pop:', a.popleft())
+    print('pop:', a.popleft())
+    a.append(300)
+    print('pop:', a.popleft())
+    a.append(400)
+    print('pop:', a.popleft())
+    a.append(500)
+    print('pop:', a.popleft())
+    a.append(600)
+    print('pop:', a.popleft())
+    a.append(700)
+    print('pop:', a.popleft())
+    a.appendleft(-100)
+    a.pop()
     print(a)
     print(a._full_array(), end='\n\n')
