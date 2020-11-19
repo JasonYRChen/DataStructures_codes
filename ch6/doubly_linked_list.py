@@ -21,7 +21,7 @@ class Deque:
 
     def __repr__(self):
         node, items = self._head, []
-        for _ in range(self._size):
+        for _ in range(len(self)):
             items.append(node._val)
             node = node._next
         return f"{self.__class__.__name__}({items})"
@@ -30,7 +30,15 @@ class Deque:
         return self._size
 
     def __getitem__(self, item):
-        pass
+        if item < 0:
+            item += len(self)
+        if not 0 <= item < len(self):
+            raise IndexError('Invalid index.')
+
+        node = self._head
+        for _ in range(item):
+            node = node._next
+        return node._val
 
     def _build_nodes(self, iters):
         """Build nodes according to iters an return the first and the last nodes. Remember to update self._size"""
@@ -53,24 +61,70 @@ class Deque:
 
     def _list_all(self):
         node = self._head
-        for _ in range(self._size):
+        for _ in range(len(self)):
             print(node)
             node = node._next
 
     def append(self, item):
-        pass
+        if self._head is None:
+            self._head, self._tail = self._build_nodes([item])
+        else:
+            self._tail._next = DoublyLinkedNode(item, self._tail, self._head)
+            self._head._prev, self._tail = self._tail._next, self._tail._next
+            self._size += 1
 
     def appendleft(self, item):
-        pass
+        if self._head is None:
+            self._head, self._tail = self._build_nodes([item])
+        else:
+            self._head._prev = DoublyLinkedNode(item, self._tail, self._head)
+            self._tail._next, self._head = self._head._prev, self._head._prev
+            self._size += 1
 
     def pop(self):
-        pass
+        if self._head is None:
+            raise ValueError('Empty deque.')
+
+        item = self._tail._val
+        if len(self) == 1:
+            self._head = self._tail = None
+        else:
+            self._tail._prev._next, self._tail._next._prev = self._tail._next, self._tail._prev
+            self._tail = self._tail._prev
+        self._size -= 1
+        return item
 
     def popleft(self):
-        pass
+        if self._head is None:
+            raise ValueError('Empty deque.')
+
+        item = self._head._val
+        if len(self) == 1:
+            self._head = self._tail = None
+        else:
+            self._head._next._prev, self._head._prev._next = self._head._prev, self._head._next
+            self._head = self._head._next
+        self._size -= 1
+        return item
 
     def insert(self, index, item):
-        pass
+        if index < 0:
+            index += len(self)
+        if len(self) > 0:
+            if not 0 <= index < len(self):
+                raise IndexError('Invalid index.')
+
+        if len(self) == 0:
+            self._head, self._tail = self._build_nodes([item])
+        else:
+            node = self._head
+            for _ in range(index):
+                node = node._next
+            node._prev = DoublyLinkedNode(item, node._prev, node)
+            node._prev._prev._next = node._prev
+            if index == 0:
+                self._head = node._prev
+            self._size += 1
 
     def remove(self, index):
         pass
@@ -98,7 +152,14 @@ class Deque:
 
 
 if __name__ == '__main__':
-    d = Deque(range(5))
+    d = Deque()
     d._list_all()
-    print(d)
-    print(len(d))
+    # d.append(100)
+    d.insert(1, 100)
+    d.insert(0, 200)
+    d.insert(1, 300)
+    d.append(400)
+    d.appendleft(500)
+    d.insert(-1, 600)
+    print(d, 'len:', len(d))
+    d._list_all()
