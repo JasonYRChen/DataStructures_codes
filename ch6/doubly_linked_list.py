@@ -1,4 +1,4 @@
-from collections import Sequence
+from collections.abc import Sequence
 
 
 class DoublyLinkedNode:
@@ -127,39 +127,84 @@ class Deque:
             self._size += 1
 
     def remove(self, index):
-        pass
+        if self._head is None:
+            raise IndexError('Empty deque.')
+
+        if index < 0:
+            index += len(self)
+        if not 0 <= index < len(self):
+            raise IndexError('Invalid index.')
+
+        if len(self) == 1:
+            self._head = self._tail = None
+        else:
+            node = self._head
+            for _ in range(index):
+                node = node._next
+            node._prev._next, node._next._prev = node._next, node._prev
+            if index == 0:
+                self._head = node._next
+        self._size -= 1
 
     def rotate(self, shift):
-        pass
+        if shift >= 0:
+            for _ in range(shift):
+                self._head, self._tail = self._head._next, self._tail._next
+        else:
+            for _ in range(-shift):
+                self._head, self._tail = self._head._prev, self._tail._prev
 
     def extend(self, iters):
-        pass
+        if self._head is None:
+            self._head, self._tail = self._build_nodes(iters)
+        else:
+            first, tail = self._build_nodes(iters)
+            self._tail._next, first._prev = first, self._tail
+            self._head._prev, tail._next = tail, self._head
+            self._tail = tail
 
     def extendleft(self, iters):
-        pass
+        if self._head is None:
+            self._head, self._tail = self._build_nodes(iters)
+        else:
+            first, tail = self._build_nodes(iters)
+            self._tail._next, first._prev = first, self._tail
+            self._head._prev, tail._next = tail, self._head
+            self._head = first
 
     def clear(self):
-        pass
+        self._head = self._tail = None
+        self._size = 0
 
     def count(self, item):
-        pass
+        node = self._head
+        num = 0
+        for _ in range(len(self)):
+            if node._val == item:
+                num += 1
+            node = node._next
+        return num
 
     def reverse(self):
-        pass
+        node = self._head
+        for _ in range(len(self)):
+            node._prev, node._next = node._next, node._prev
+            node = node._prev
+        self._head, self._tail = self._tail, self._head
 
     def copy(self):
-        pass
+        iters = []
+        node = self._head
+        for _ in range(len(self)):
+            iters.append(node._val)
+            node = node._next
+        return Deque(iters)
 
 
 if __name__ == '__main__':
-    d = Deque()
-    d._list_all()
-    # d.append(100)
-    d.insert(1, 100)
-    d.insert(0, 200)
-    d.insert(1, 300)
-    d.append(400)
-    d.appendleft(500)
-    d.insert(-1, 600)
-    print(d, 'len:', len(d))
-    d._list_all()
+    d = Deque([2, 2, 3, 4])
+    print(d.count(1))
+    print(d, 'len:', len(d), ', id:', id(d))
+    c = d.copy()
+    print(c, 'len:', len(c), ', id:', id(c))
+    c._list_all()
