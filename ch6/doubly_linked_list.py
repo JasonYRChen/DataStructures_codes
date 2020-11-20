@@ -2,6 +2,8 @@ from collections.abc import Sequence
 
 
 class DoublyLinkedNode:
+    __slots__ = '_val', '_prev', '_next'
+
     def __init__(self, val=0, prev_node=None, next_node=None):
         self._val = val
         self._prev = prev_node
