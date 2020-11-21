@@ -46,10 +46,12 @@ class SinglyLinkedList:
         return self._head
 
 
+def node_numbers(node):
+    return 0 if node is None else 1 + node_numbers(node._next)
+
+
 if __name__ == '__main__':
     sll = SinglyLinkedList()
     for n in range(10):
         sll.push(n)
-    print(len(sll))
-    print(sll)
-    print(sll[8])
+    print(node_numbers(sll._head))
