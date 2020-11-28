@@ -45,12 +45,16 @@ class Tree(abc.ABC):
         """Remove the node and connect its children to its parent if legitimate."""
 
     @abc.abstractmethod
-    def disable_node(self, node):
+    def _replace(self, node, elements):
+        """Replace elements in the node."""
+
+    @abc.abstractmethod
+    def _disable_node(self, node):
         """Make node invalid and reduce total nodes number by 1.
         May accompany with self.detach method."""
 
     @abc.abstractmethod
-    def add_root(self, node=None):
+    def _add_root(self, node=None):
         """Add root to the tree"""
 
     def height(self, node=None):
