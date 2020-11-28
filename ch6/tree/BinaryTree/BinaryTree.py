@@ -12,11 +12,11 @@ class BinaryTree(Tree):
         """Return node's right child node"""
 
     @abc.abstractmethod
-    def attach_left(self, node, child_node):
+    def _attach_left(self, node, child_node):
         """Attach child node to the left of node"""
 
     @abc.abstractmethod
-    def attach_right(self, node, child_node):
+    def _attach_right(self, node, child_node):
         """Attach child node to the right of node"""
 
     def sibling(self, node):
@@ -37,25 +37,6 @@ class BinaryTree(Tree):
         left = self.left(node)
         right = self.right(node)
         return 2 if left and right else int(left or right)
-
-    def attach(self, node, left=None, right=None):
-        if left:
-            self.attach_left(node, left)
-        if right:
-            self.attach_right(node, right)
-
-    def detach(self, node):
-        if self.children_num(node) == 2:
-            raise ValueError(f"Detach failed. {node} has 2 children. Cannot attach both children to its parent node.")
-        if node is self.root():
-            if self.left(node):
-                self.add_root(self.left(node))
-            else:
-                self.add_root(self.right(node))  # self.right(node) may be None.
-        else:
-            parent = self.parent(node)
-            self.attach(parent, self.left(node), self.right(node))
-        self.disable_node(node)
 
 
 if __name__ == '__main__':
