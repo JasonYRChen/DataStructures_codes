@@ -54,7 +54,7 @@ class Tree(abc.ABC):
         May accompany with self.detach method."""
 
     @abc.abstractmethod
-    def _add_root(self, node=None):
+    def _add_root(self, node):
         """Add root to the tree"""
 
     def height(self, node=None):
