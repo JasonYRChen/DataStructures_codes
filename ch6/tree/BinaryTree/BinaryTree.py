@@ -12,11 +12,11 @@ class BinaryTree(Tree):
         """Return node's right child node"""
 
     @abc.abstractmethod
-    def _attach_left(self, node, child_node):
+    def attach_left(self, node, child_node):
         """Attach child node to the left of node"""
 
     @abc.abstractmethod
-    def _attach_right(self, node, child_node):
+    def attach_right(self, node, child_node):
         """Attach child node to the right of node"""
 
     def sibling(self, node):
