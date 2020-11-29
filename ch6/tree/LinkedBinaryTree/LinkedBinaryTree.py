@@ -1,24 +1,51 @@
 from ch6.tree.BinaryTree.BinaryTree import BinaryTree
-from ch6.tree.DoublyLinkedList.DoublyLinkedList import BinaryChildren
 
 
 class LinkedBinaryTree(BinaryTree):
-    def __init__(self, root=None):
+    class _Node:
+        __slots__ = '_elements', '_parent', '_left', '_right'
+
+        def __init__(self, element=None, parent=None, left=None, right=None):
+            self._elements = element
+            self._parent = parent
+            self._left = left
+            self._right = right
+
+    def __init__(self, obj=None):
         self._size = 0
-        self._root = None
-        if root:
-            self._add_root(root)
+        self._dummy_root = self._Node()
+        self._dummy_root._right = self._dummy_root._left
+        if obj is not None:
+            self._add_root(obj)
 
     def __len__(self):
         return self._size
 
-    def _add_root(self, node=None):
-        if node is not None:
-            node = self._valid_node(node)
-        self._root = node
+    def _make_node(self, obj):
+        """Given valid obj (tree or node), return length of obj and node itself or its root."""
+        if isinstance(obj, self.__class__):
+            return len(obj), obj._dummy_root._left
+        elif isinstance(obj, self.__class__._Node):
+            return 1, obj
+        else:
+            return 1, self._Node(obj)
+
+    def _valid_node(self, node):
+        if not isinstance(node, self._Node):
+            raise TypeError('Invalid node type.')
+        if node._parent is node:
+            raise ValueError('This node is no longer valid.')
+        return node
+
+    def _add_root(self, obj):
+        size, node = self._make_node(obj)
+        if self._dummy_root._left is not None:
+            raise ValueError('Root already exists, cannot add new root.')
+        self._dummy_root._left, node._parent = node, self._dummy_root
+        self._size += size
 
     def root(self):
-        return self._root
+        return self._dummy_root._left
 
     def parent(self, node):
         node = self._valid_node(node)
@@ -28,31 +55,6 @@ class LinkedBinaryTree(BinaryTree):
         node = self._valid_node(node)
         return node._elements
 
-    def _attach_left(self, node, child_node):
-        node = self._valid_node(node)
-        child_node = self._valid_node(child_node)
-        if node._left:
-            raise ValueError(f'Node {node} already has left node {node._left}. Cannot attach new node')
-        node._left = child_node
-        child_node._parent = node
-
-    def _attach_right(self, node, child_node):
-        node = self._valid_node(node)
-        child_node = self._valid_node(child_node)
-        if node._right:
-            raise ValueError(f'Node {node} already has left node {node._right}. Cannot attach new node')
-        node._right = child_node
-        child_node._parent = node
-
-    def _replace(self, node, elements):
-        node = self._valid_node(node)
-        node._elements = elements
-
-    def _disable_node(self, node):
-        node = self._valid_node(node)
-        node._parent = node
-        node._left = node._right = None
-
     def left(self, node):
         node = self._valid_node(node)
         return node._left
@@ -61,34 +63,49 @@ class LinkedBinaryTree(BinaryTree):
         node = self._valid_node(node)
         return node._right
 
-    def attach(self, node, left=None, right=None):
-        if left and self._valid_node(left):
-            self._attach_left(node, left)
-        if right and self._valid_node(right):
-            self._attach_right(node, right)
+    def attach_left(self, node, obj):
+        node = self._valid_node(node)
+        if node._left is not None:
+            raise ValueError(f'Node {node} already has left node {node._left}. Cannot attach new node')
+        size, child_node = self._make_node(obj)
+        node._left = child_node
+        child_node._parent = node
+        self._size += size
+
+    def attach_right(self, node, obj):
+        node = self._valid_node(node)
+        if node._right:
+            raise ValueError(f'Node {node} already has left node {node._right}. Cannot attach new node')
+        size, child_node = self._make_node(obj)
+        node._right = child_node
+        child_node._parent = node
+        self._size += size
+
+    def _replace(self, node, elements):
+        node = self._valid_node(node)
+        node._elements = elements
+
+    def _disable_node(self, node):
+        node._parent = node
+        node._left = node._right = None
 
     def detach(self, node):
-        if self._valid_node(node):
-            if self.children_num(node) == 2:
-                raise ValueError(f"Detach failed. {node} has 2 children. Cannot attach both children to its parent node.")
-            if node is self.root():
-                if self.left(node):
-                    self._add_root(self.left(node))
-                else:
-                    self._add_root(self.right(node))  # self.right(node) may be None.
-            else:
-                parent = self.parent(node)
-                self.attach(parent, self.left(node), self.right(node))
-            self._disable_node(node)
+        node = self._valid_node(node)
+        if self.children_num(node) == 2:
+            raise ValueError(f"Detach failed. {node} has 2 children. Cannot attach both children to its parent node.")
 
-    def _valid_node(self, node, node_cls=BinaryChildren):
-        if not isinstance(node, node_cls):
-            raise TypeError(f'Invalid node type. Node type should be {node_cls}, but {type(node)} instead.')
-        if node._parent is node:
-            raise ValueError('Invalid node. This node has been dumped.')
-        return node
+        parent = node._parent
+        child = node._left if node._left is not None else node._right
+        if parent._left is node:
+            parent._left = child
+        else:
+            parent._right = child
+        if child is not None:
+            child._parent = parent
+        self._disable_node(node)
+        self._size -= 1
 
 
 if __name__ == '__main__':
     t = LinkedBinaryTree()
-    print(t)
+    print(dir(t))
