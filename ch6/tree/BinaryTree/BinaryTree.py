@@ -36,7 +36,7 @@ class BinaryTree(Tree):
     def children_num(self, node):
         left = self.left(node)
         right = self.right(node)
-        return 2 if left and right else int(left or right)
+        return 2 if left and right else int(bool(left) or bool(right))
 
 
 if __name__ == '__main__':
