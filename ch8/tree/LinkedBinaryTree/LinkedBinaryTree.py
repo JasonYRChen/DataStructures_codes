@@ -1,4 +1,4 @@
-from ch6.tree.BinaryTree.BinaryTree import BinaryTree
+from ch8.tree import BinaryTree
 from collections import deque
 
 

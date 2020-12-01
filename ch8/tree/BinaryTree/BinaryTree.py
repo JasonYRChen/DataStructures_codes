@@ -1,5 +1,5 @@
 import abc
-from ch6.tree.Tree.Tree import Tree
+from ch8.tree.Tree.Tree import Tree
 
 
 class BinaryTree(Tree):
