@@ -94,9 +94,14 @@ class LinkedBinaryTree(BinaryTree):
         self._size += size
         return child_node
 
-    def attach(self, node, *nodes):
-        """Currently no use. Just for overriding abc ancestor."""
-        pass
+    def attach(self, node, left, right):
+        if left is not None:
+            _, left = self._make_node(left)
+            self.attach_left(node, left)
+        if right is not None:
+            _, right = self._make_node(right)
+            self.attach_right(node, right)
+        return node
 
     def _replace(self, node, elements):
         node = self._valid_node(node)
@@ -157,20 +162,32 @@ class LinkedBinaryTree(BinaryTree):
             for child in self.children(nd):
                 dq.append([lv+1, child])
 
-    def preorder(self, node, level):
-        node = self._valid_node(node)
+    def preorder(self, node=None, level=0):
+        if node is None:
+            node = self.root()
+        else:
+            node = self._valid_node(node)
         yield from self._preorder(node, level)
 
-    def postorder(self, node, level):
-        node = self._valid_node(node)
+    def postorder(self, node=None, level=0):
+        if node is None:
+            node = self.root()
+        else:
+            node = self._valid_node(node)
         yield from self._postorder(node, level)
 
-    def inorder(self, node, level):
-        node = self._valid_node(node)
+    def inorder(self, node=None, level=0):
+        if node is None:
+            node = self.root()
+        else:
+            node = self._valid_node(node)
         yield from self._inorder(node, level)
 
-    def breadth_first(self, node, level):
-        node = self._valid_node(node)
+    def breadth_first(self, node=None, level=0):
+        if node is None:
+            node = self.root()
+        else:
+            node = self._valid_node(node)
         yield from self._breadth_first(node, level)
 
     def list_all(self, method=None):
