@@ -200,8 +200,7 @@ class Deque:
             stop += len(self)
 
         # Only if it's an interval, starts from 'start' and moves toward 'stop' through 'step',
-        # and the interval overlaps with list, which is the target, interval specified by l_bound
-        # and u_bound.
+        # and the interval overlaps to list interval specified by l_bound and u_bound.
         is_interval = abs(stop - (start + step // abs(step))) < abs(stop - start)
         is_overlap = not((start > u_bound and stop >= u_bound) or (start < l_bound and stop <= l_bound))
         if is_interval and is_overlap:
