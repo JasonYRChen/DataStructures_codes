@@ -203,10 +203,14 @@ class Deque:
         return Deque(iters)
 
 
+def find_center(head, tail):
+    while (head != tail) and head._next != tail:
+        head, tail = head._next, tail._prev
+    return head._val
+
+
 if __name__ == '__main__':
-    d = Deque([2, 2, 3, 4])
-    print(d.count(1))
-    print(d, 'len:', len(d), ', id:', id(d))
-    c = d.copy()
-    print(c, 'len:', len(c), ', id:', id(c))
-    c._list_all()
+    d = Deque(list(range(7)))
+    print(find_center(d._head, d._tail))
+    # d._list_all()
+    # print(d._head, d._tail, len(d))
