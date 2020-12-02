@@ -119,16 +119,14 @@ class Queue:
 
 
 if __name__ == "__main__":
-    q = Queue(range(5))
+    q = Queue(range(10))
     q.insert(3, SinglyLinkedNode(100))
-    q.list_all()
-    print()
-    q.remove(0)
-    q.remove(0)
-    q.remove(0)
-    q.remove(0)
-    q.remove(0)
-    q.remove(0)
-    q.remove(0)
-    q.list_all()
-    print(q)
+    # q.list_all()
+
+    node = q._head._next
+    numbers = 1
+    while id(node) != id(q._head):
+        numbers += 1
+        node = node._next
+    print(numbers)
+
