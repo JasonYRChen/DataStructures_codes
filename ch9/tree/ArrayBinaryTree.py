@@ -12,12 +12,18 @@ class ArrayBinaryTree(BinaryTree):
     class _Node:
         __slots__ = '_element', '_index'
 
-        def __init__(self, element=None, index=None):
-            self._element = element
+        def __init__(self, index=None, element=None):
             self._index = index
+            self._element = element
 
         def __repr__(self):
             return f"Node(index={self._index}, element={self._element})"
+
+        def __lt__(self, other):
+            return self._element < other._element
+
+        def __eq__(self, other):
+            return self._element == other._element
 
     def __init__(self, elements: Iterable = None):
         self._data = []
@@ -57,7 +63,10 @@ class ArrayBinaryTree(BinaryTree):
         index = self.index(node)
         if index == 0:
             return None
-        return self[ceil(index / 2 - 1)]
+        return self[(index - 1) // 2]
+
+    def parent(self, node):
+        return self._parent(node)
 
     def _left(self, node):
         index = self.index(node)
@@ -257,9 +266,9 @@ class ArrayBinaryTree(BinaryTree):
                 indent: the indent of printed node corresponds to respective height
         """
         if traversal is None:
-            traversal = self.preorder()
+            traversal = self.preorder
         for node in self.iter_all(traversal):
-            d = t.depth(node)
+            d = self.depth(node)
             print(' ' * indent * d, node, sep='')
 
     def _build_tree(self, iterables):
