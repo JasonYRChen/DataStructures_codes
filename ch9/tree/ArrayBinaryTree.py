@@ -1,6 +1,5 @@
 from ch9.tree.BinaryTree import BinaryTree
 from collections.abc import Iterable
-from math import ceil, log2
 from collections import deque
 
 
@@ -10,32 +9,35 @@ class MultipleNodesError(Exception):
 
 class ArrayBinaryTree(BinaryTree):
     class _Node:
-        __slots__ = '_element', '_index'
+        __slots__ = '_element', '_key', '_index'
 
-        def __init__(self, index=None, element=None):
-            self._index = index
+        def __init__(self, key=None, element=None, index=None):
+            self._key = key
             self._element = element
+            self._index = index
 
         def __repr__(self):
-            return f"Node(index={self._index}, element={self._element})"
+            return f"Node(k={self._key}, e={self._element}, i={self._index})"
 
         def __lt__(self, other):
-            return self._element < other._element
+            return self._key < other._key
 
         def __eq__(self, other):
-            return self._element == other._element
+            return self._key == other._key
 
     def __init__(self, elements: Iterable = None):
         self._data = []
-        self._size = 0  # the maximum space for a complete tree
         self._num_node = 0
         if elements:
             if not isinstance(elements, Iterable):
-                raise TypeError('Not a valid sequence.')
+                raise TypeError('Invalid iterable or sequence.')
             self._build_tree(elements)
 
     def __getitem__(self, index):
         return self._data[index]
+
+    def __setitem__(self, index, value):
+        self._data[index] = value
 
     def __repr__(self):
         return f"{self.__class__.__name__}({self._data})"
@@ -43,161 +45,162 @@ class ArrayBinaryTree(BinaryTree):
     def __len__(self):
         return self._num_node
 
-    @staticmethod
-    def index(node):
-        return node._index
+    def key(self, index):
+        return self[index]._key
 
-    @staticmethod
-    def _set_index(node, index):
-        node._index = index
+    def set_key(self, index, key):
+        self[index]._key = key
 
-    @staticmethod
-    def element(node):
-        return node._element
+    def element(self, index):
+        return self[index]._element
 
-    @staticmethod
-    def _set_element(node, element):
-        node._element = element
+    def set_element(self, index, element):
+        self[index]._element = element
 
-    def _parent(self, node):
-        index = self.index(node)
+    def index(self, index):
+        return self[index]._index
+
+    def set_index(self, index, new_index):
+        self[index]._index = new_index
+
+    def _parent(self, index):
         if index == 0:
-            return None
-        return self[(index - 1) // 2]
+            return 0
+        return (index - 1) // 2
 
-    def parent(self, node):
-        return self._parent(node)
-
-    def _left(self, node):
-        index = self.index(node)
+    def _left(self, index):
         left_index = 2 * index + 1
-        if left_index < self._size:
-            return self[left_index]
+        if left_index < len(self._data):
+            return left_index
         return None
 
-    def _right(self, node):
-        index = self.index(node)
-        left_index = 2 * index + 2
-        if left_index < self._size:
-            return self[left_index]
+    def _right(self, index):
+        right_index = 2 * index + 2
+        if right_index < len(self._data):
+            return right_index
         return None
 
-    def _add_root(self, element):
+    def _add_root(self, key, element):
         if not self._is_empty():
             raise ValueError('Root exists. Cannot add new root')
-        self._data.append(self._Node(element, 0))
-        self._size = 1
-        self._num_node = 1
+        self._data.append(self._Node(key, element, 0))
+        self._num_node += 1
+        return self._data[0]
 
-    def _add_left(self, node, element):
-        if self._left(node) is not None:
+    def _add_left(self, key, element, index):
+        if self[index] is None:
+            raise ValueError('Parent node does not exist. Cannot add child node.')
+        left_index = self._left(index)
+        if left_index and self[left_index] is not None:
             raise ValueError("Left node is occupied. Cannot add new node.")
-        index = self.index(node)
-        child_index = 2 * index + 1
-        if child_index >= self._size:
-            self._extend_space()
-        self._data[child_index] = self._Node(element, child_index)
+        if left_index is None:
+            left_index = 2 * index + 1
+            self._extend_space(left_index)
+        self[left_index] = self._Node(key, element, left_index)
         self._num_node += 1
+        return self[left_index]
 
-    def _add_right(self, node, element):
-        if self._right(node) is not None:
+    def _add_right(self, key, element, index):
+        if self[index] is None:
+            raise ValueError('Parent node does not exist. Cannot add child node.')
+        right_index = self._right(index)
+        if right_index and self[right_index] is not None:
             raise ValueError("Right node is occupied. Cannot add new node.")
-        index = self.index(node)
-        child_index = 2 * index + 2
-        if child_index > self._size:
-            self._extend_space()
-        self._data[child_index] = self._Node(element, child_index)
+        if right_index is None:
+            right_index = 2 * index + 2
+            self._extend_space(right_index)
+        self[right_index] = self._Node(key, element, right_index)
         self._num_node += 1
-
-    def _clear(self):
-        """ Clear all nodes in current tree"""
-        self._data.clear()
-        self._size = 0
-        self._num_node = 0
+        return self[right_index]
 
     def clear(self):
-        self._clear()
+        """ Clear all nodes in current tree"""
+        self._data.clear()
+        self._num_node = 0
 
-    def _delete(self, node):
-        index, element = self.index(node), self.element(node)
-        if self._num_children(node) == 2:
+    def _num_children(self, index):
+        return sum(int(self[n] is not None) for n in self._children(index) if n is not None)
+
+    def _delete(self, index):
+        if self[index] is None:
+            raise ValueError('Node does not exist. Cannot delete node.')
+        key, element = self.key(index), self.element(index)
+        num_children = self._num_children(index)
+        if num_children == 2:
             raise MultipleNodesError('More than one child detect, cannot delete the node.')
 
-        try:
-            child = next(self._children(node))
-        except StopIteration:
-            child = None
-        else:
-            self._data[self.index(child)] = None
-        self._set_index(node, -1)
-        self._data[index] = child
-        stack = deque([(index, child)]) if child is not None else deque()
-        while stack:
-            index, node = stack.popleft()
-            for child in self._children(node):
-                curr_child_idx = self.index(child)
-                new_child_idx = 2 * index + 1 if curr_child_idx % 2 else 2 * index + 2
-                self._data[new_child_idx], self._data[curr_child_idx] = child, None
-                stack.append((new_child_idx, child))
-            self._set_index(node, index)
-        self._num_node -= 1
-        return element
+        self[index] = None
+        if num_children == 1:
+            child_idx = self._left(index) if self._data[self._left(index)] else self._right(index)
+            self[index], self[child_idx] = self[child_idx], None
+            stack = deque([(index, child_idx)])
 
-    def delete(self, node):
-        return self._delete(node)
+            while stack:
+                curr_idx, prev_idx = stack.popleft()
+                for child_idx in self._children(prev_idx):
+                    new_child_idx = 2 * curr_idx + 1 if child_idx % 2 else 2 * curr_idx + 2
+                    self[new_child_idx], self[child_idx] = self[child_idx], None
+                    stack.append((new_child_idx, child_idx))
+                self.set_index(curr_idx, curr_idx)
+        self._num_node -= 1
+        return key, element
+
+    def delete(self, index):
+        return self._delete(index)
 
     def _is_empty(self):
         return len(self) == 0
 
-    def _is_leaf(self, node):
-        return self._num_children(node) == 0
+    def _is_leaf(self, index):
+        return self._num_children(index) == 0
 
-    def _is_root(self, node):
-        return node._index == 0
+    def _is_root(self, index):
+        return self[index]._index == 0
 
-    def _replace(self, node, element):
-        self._set_element(node, element)
+    def _replace(self, index, key, element):
+        self.set_element(index, element)
+        if key is not None:
+            self.set_key(index, key)
 
-    def replace(self, node, element):
-        return self._replace(node, element)
+    def replace(self, index, element, key=None):
+        self._replace(index, key, element)
 
     def _root(self):
-        return self[0]
+        return 0
 
-    def _extend_space(self):
-        """ Extend current tree array with maximum next level children numbers"""
-        h = log2(self._size + 1) - 1
-        new_length = int(2 ** (h+2) - 1)
-        self._data.extend([None] * (new_length - self._size))
-        self._size = new_length
+    def _extend_space(self, index):
+        curr_len = len(self._data)
+        self._data.extend([None] * (index + 1 - curr_len))
 
-    def _preorder(self, node):
-        yield node
-        for child in self._children(node):
-            if child is not None:
-                yield from self._preorder(child)
+    def _preorder(self, index):
+        yield index
+        for child_idx in self._children(index):
+            if child_idx and self[child_idx] is not None:
+                yield from self._preorder(child_idx)
 
-    def _postorder(self, node):
-        if not self._is_leaf(node):
-            for child in self._children(node):
-                yield from self._postorder(child)
-        yield node
+    def _postorder(self, index):
+        if not self._is_leaf(index):
+            for child_idx in self._children(index):
+                yield from self._postorder(child_idx)
+        yield index
 
-    def _breadth_first(self, node):
-        dq = deque([node])
+    def _breadth_first(self, index):
+        dq = deque([index])
         while dq:
-            node = dq.popleft()
-            yield node
-            dq.extend(self._children(node))
+            index = dq.popleft()
+            yield index
+            dq.extend(self._children(index))
 
-    def _inorder(self, node):
-        if self._left(node) is not None:
-            yield from self._inorder(self._left(node))
-        yield node
-        if self._right(node) is not None:
-            yield from self._inorder(self._right(node))
+    def _inorder(self, index):
+        left_idx = self._left(index)
+        if left_idx and self[left_idx] is not None:
+            yield from self._inorder(left_idx)
+        yield index
+        right_idx = self._right(index)
+        if right_idx and self[right_idx] is not None:
+            yield from self._inorder(right_idx)
 
-    def preorder(self, node=None):
+    def preorder(self, index=0):
         """ Give a preorder traversal starting from node
 
             :param
@@ -205,11 +208,9 @@ class ArrayBinaryTree(BinaryTree):
 
             :return generator of node traversal
         """
-        if node is None:
-            node = self._root()
-        yield from self._preorder(node)
+        yield from self._preorder(index)
 
-    def postorder(self, node=None):
+    def postorder(self, index=0):
         """ Give a postorder traversal starting from node
 
             :param
@@ -217,11 +218,9 @@ class ArrayBinaryTree(BinaryTree):
 
             :return generator of node traversal
         """
-        if node is None:
-            node = self._root()
-        yield from self._postorder(node)
+        yield from self._postorder(index)
 
-    def breadth_first(self, node=None):
+    def breadth_first(self, index=0):
         """ Give a breadth-first traversal starting from node
 
             :param
@@ -229,11 +228,9 @@ class ArrayBinaryTree(BinaryTree):
 
             :return generator of node traversal
         """
-        if node is None:
-            node = self._root()
-        yield from self._breadth_first(node)
+        yield from self._breadth_first(index)
 
-    def inorder(self, node=None):
+    def inorder(self, index=0):
         """ Give a inorder traversal starting from node
 
             :param
@@ -241,9 +238,7 @@ class ArrayBinaryTree(BinaryTree):
 
             :return generator of node traversal
         """
-        if node is None:
-            node = self._root()
-        yield from self._inorder(node)
+        yield from self._inorder(index)
 
     def iter_all(self, traversal=None):
         """ Iterate all the nodes in current tree in generator. Designate tree traversal
@@ -267,75 +262,51 @@ class ArrayBinaryTree(BinaryTree):
         """
         if traversal is None:
             traversal = self.preorder
-        for node in self.iter_all(traversal):
-            d = self.depth(node)
-            print(' ' * indent * d, node, sep='')
+        for index in self.iter_all(traversal):
+            d = self.depth(index)
+            print(' ' * indent * d, self._data[index], sep='')
 
     def _build_tree(self, iterables):
         if not isinstance(iterables, Iterable):
             raise TypeError('Invalid iterable. Elements should be bound into an iterable.')
-        for i, element in enumerate(iterables):
-            if self._is_empty():
-                self._add_root(element)
-            else:
-                if i == self._size:
-                    self._extend_space()
-                self._data[i] = self._Node(element, i)
-                self._num_node += 1
+        if not self._is_empty():
+            raise ValueError('Tree already exists. Cannot form a new tree.')
+        for i, (key, element) in enumerate(iterables):
+            self._data.append(self._Node(key, element, i))
+            self._num_node += 1
 
-    def depth(self, node):
-        index = self.index(node)
+    def _depth(self, index):
         if index == 0:
             return 0
-        return 1 + self.depth(self._parent(node))
+        return 1 + self._depth(self._parent(index))
 
-    def _height(self, node):
-        if self._is_leaf(node):
+    def depth(self, index=0):
+        return self._depth(index)
+
+    def _height(self, index):
+        if self._is_leaf(index):
             return 0
-        return 1 + max(self._height(child) for child in self._children(node))
+        return 1 + max(self._height(child_idx) for child_idx in self._children(index))
 
-    def height(self, node=None):
-        if node is None:
-            node = self._root()
-        return self._height(node)
+    def height(self, index=0):
+        return self._height(index)
 
 
 if __name__ == '__main__':
-    # t = ArrayBinaryTree(range(13))
+    rank = (4, 'Ian'), (1, 'Jason'), (3, 'Ryan'), (2, 'Shawn'), (5, 'Chris'), (8, 'Nick'), (11, 'Bob'), (7, 'Rick'), (13, 'Wu')
+    t = ArrayBinaryTree(rank)
+    print(t._data)
+    print('length:', len(t), 'height:', t.height())
+    t.list_all()
+    t.delete(4)
+    # t.delete(1)
+    t._add_right(100, 'Keyman', 7)
+    print(t._data)
+    print('length:', len(t), 'height:', t.height())
+    t.list_all()
+    # t.clear()
+    # t._add_root(300, 'Word')
     # print(t._data)
-    # print('length:', len(t))
-    # print(t._data)
-    # t.list_all(t.preorder)
-    # print()
-    # print(t._data)
-    # print(t.delete(t[12]))
-    # print(t._data)
-    # print(t.delete(t[5]))
-    # print(t._data)
-    # print(t.delete(t[5]))
-    # print(t._data)
-    # print('length:', len(t))
-    # t.list_all(t.preorder)
-    #
-    # print()
-    # print(t.delete(t[2]))
-    # print(t.delete(t[2]))
-    # print(t.delete(t[0]))
-    # print('length:', len(t))
-    # print(t._data)
-    # t.list_all(t.preorder)
+    # print('length:', len(t), 'height:', t.height())
+    # t.list_all()
 
-    t = ArrayBinaryTree(range(5))
-    print(t)
-    print('length:', len(t))
-    t.list_all(t.preorder)
-    print()
-    t._add_right(t[2], 100)
-    print(t)
-    print('length:', len(t))
-    t.list_all(t.preorder)
-    print()
-    t._add_right(t[4], 100)
-    print(t)
-    print('length:', len(t))
-    t.list_all(t.preorder)
