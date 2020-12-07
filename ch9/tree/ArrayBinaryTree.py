@@ -36,6 +36,9 @@ class ArrayBinaryTree(BinaryTree):
     def __getitem__(self, index):
         return self._data[index]
 
+    def __delitem__(self, key):
+        del self._data[key]
+
     def __setitem__(self, index, value):
         self._data[index] = value
 
