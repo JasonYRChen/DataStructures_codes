@@ -21,14 +21,14 @@ class Heap(ArrayBinaryTree):
         if self._num_children(index):
             children = [c for c in self._children(index) if self[c] is not None]
             child_idx = min(children, key=lambda idx: self.key(idx))
-            if self.key(index) >= self.key(child_idx):
+            if self.key(index) > self.key(child_idx):
                 self[index], self[child_idx] = self[child_idx], self[index]
                 self.set_index(child_idx, child_idx)
                 self.set_index(index, index)
                 self._downheap(child_idx)
 
     def remove_min(self):
-        if self[0] is None:
+        if self._is_empty():
             raise ValueError('Empty tree.')
         min_key, min_element = self.key(0), self.element(0)
         self[0] = self[-1]
@@ -38,6 +38,8 @@ class Heap(ArrayBinaryTree):
         return min_key, min_element
 
     def min(self):
+        if self._is_empty():
+            raise ValueError('Empty tree.')
         return self.key(0), self.element(0)
 
     def _build_tree(self, iterables):
