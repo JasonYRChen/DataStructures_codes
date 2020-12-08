@@ -45,23 +45,28 @@ class Heap(ArrayBinaryTree):
     def _build_tree(self, iterables):
         if not isinstance(iterables, Iterable):
             raise TypeError('Invalid iterable. Cannot initiate a heap.')
-        for k, e in iterables:
-            self.add(k, e)
+        if len(self):
+            raise ValueError('Heap already exist.')
+        self._data = [self._Node(k, e, i) for i, (k, e) in enumerate(iterables)]
+        self._num_node = len(self._data)
+        h = self.height()
+        if h:
+            start = 2 ** h - 1
+            for index in range(start-1, -1, -1):
+                self._downheap(index)
 
 
 if __name__ == '__main__':
     rank = (13, 'Wu'), (4, 'Ian'), (1, 'Jason'), (11, 'Bob'), (1, 'Ryan'), (2, 'Shawn'), (5, 'Chris'), (8, 'Nick'), (7, 'Rick')
     h = Heap(rank)
-    # for k, e in rank:
-    #     h.add(k, e)
     print(h.min())
     print(h)
     print('length:', len(h), 'height:', h.height())
     h.list_all(h.breadth_first)
-    print(h.remove_min())
-    print(h.remove_min())
-    print('length:', len(h), 'height:', h.height())
-    h.list_all(h.breadth_first)
+    # print(h.remove_min())
+    # print(h.remove_min())
+    # print('length:', len(h), 'height:', h.height())
+    # h.list_all(h.breadth_first)
     # print(h.remove_min())
     # print(h.remove_min())
     # print(h.remove_min())
