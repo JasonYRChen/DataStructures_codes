@@ -9,19 +9,21 @@ class Heap(ArrayBinaryTree):
         self._upheap(index)
         self._num_node += 1
 
-    def _upheap(self, index):
+    def _upheap(self, index, key=None):
         parent_idx = self._parent(index)
-        if index and self.key(index) < self.key(parent_idx):
+        func = self.key if key is None else lambda x: key(self.element(x))
+        if index and func(index) < func(parent_idx):
             self[parent_idx], self[index] = self[index], self[parent_idx]
             self.set_index(parent_idx, parent_idx)
             self.set_index(index, index)
             self._upheap(parent_idx)
 
-    def _downheap(self, index):
+    def _downheap(self, index, key=len):
         if self._num_children(index):
             children = [c for c in self._children(index) if self[c] is not None]
-            child_idx = min(children, key=lambda idx: self.key(idx))
-            if self.key(index) > self.key(child_idx):
+            func = self.key if key is None else lambda x: key(self.element(x))
+            child_idx = min(children, key=lambda idx: func(idx))
+            if func(index) > func(child_idx):
                 self[index], self[child_idx] = self[child_idx], self[index]
                 self.set_index(child_idx, child_idx)
                 self.set_index(index, index)
@@ -55,9 +57,15 @@ class Heap(ArrayBinaryTree):
             for index in range(start-1, -1, -1):
                 self._downheap(index)
 
+    def sort(self, descending=True, key=None):
+        pass
+
+    def _sort(self, index, key=None):
+        pass
+
 
 if __name__ == '__main__':
-    rank = (13, 'Wu'), (4, 'Ian'), (1, 'Jason'), (11, 'Bob'), (1, 'Ryan'), (2, 'Shawn'), (5, 'Chris'), (8, 'Nick'), (7, 'Rick')
+    rank = (2, 'Shawn'), (4, 'Ian'), (1, 'Jason'), (11, 'Bob'), (1, 'Ryan'), (5, 'Chris'), (13, 'Wu'), (8, 'Nick'), (7, 'Rick')
     h = Heap(rank)
     print(h.min())
     print(h)
