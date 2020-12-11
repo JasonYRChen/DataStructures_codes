@@ -15,7 +15,7 @@ class HeapQ(ArrayBinaryTree):
 
     def __init__(self, elements=None, key=None, ascending=True):
         self._ascending = ascending
-        self._key = key if key is not None else lambda idx: self.element(idx)
+        self._key = lambda idx: key(self.element(idx)) if key is not None else lambda idx: self.element(idx)
         self._data = []
         if elements is not None:
             self._build_tree(elements, key, ascending)
@@ -107,6 +107,8 @@ class HeapQ(ArrayBinaryTree):
         self._upheap(-1)
 
     def remove(self, index):
+        if index >= len(self):
+            raise IndexError('Invalid index')
         index = self._positive_index(index)
         element = self.element(index)
         self[index] = self._data.pop()
@@ -114,11 +116,26 @@ class HeapQ(ArrayBinaryTree):
         return element
 
     def pop(self):
+        if len(self) == 0:
+            raise ValueError('Empty heap.')
+        if len(self) == 1:
+            element = self.element(0)
+            self._data.pop()
+            return element
         return self.remove(0)
 
     def pushpop(self, element):
-        if self._ascending ^ (element >= self.element(0)):
+        # Because of self._key need data index as parameter, here I use an indirect
+        # implement to compare element and data[0]
+        self._data.append(self._HeapNode(None, element, len(self)))
+        func = self._key
+        if self._ascending ^ (func(-1) >= func(0)):
+            print('direct giveback')
+            element = self.element(-1)
+            self._data.pop()
             return element
+        print('push then pop')
+        self._data.pop()
         self.push(element)
         return self.pop()
 
@@ -183,7 +200,8 @@ class HeapQ(ArrayBinaryTree):
 if __name__ == '__main__':
     nums = 4, 3, 7, 8, 1, 0, 11, 34, 2
     h = HeapQ(nums, ascending=False, key=lambda x: x % 10)
-    h.push(9)
+    h.list_all(h.breadth_first)
+    print(h.pushpop(435))
     print(h)
     print(len(h))
     h.list_all(h.breadth_first)
