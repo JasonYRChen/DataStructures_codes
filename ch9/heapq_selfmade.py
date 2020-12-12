@@ -15,7 +15,7 @@ class HeapQ(ArrayBinaryTree):
 
     def __init__(self, elements=None, key=None, ascending=True):
         self._ascending = ascending
-        self._key = lambda idx: key(self.element(idx)) if key is not None else lambda idx: self.element(idx)
+        self._key = (lambda idx: key(self.element(idx))) if key is not None else (lambda idx: self.element(idx))
         self._data = []
         if elements is not None:
             self._build_tree(elements, key, ascending)
@@ -109,19 +109,19 @@ class HeapQ(ArrayBinaryTree):
     def remove(self, index):
         if index >= len(self):
             raise IndexError('Invalid index')
-        index = self._positive_index(index)
-        element = self.element(index)
-        self[index] = self._data.pop()
-        self._downheap(index)
+        if len(self) == 1:
+            element = self.element(0)
+            self._data.pop()
+        else:
+            index = self._positive_index(index)
+            element = self.element(index)
+            self[index] = self._data.pop()
+            self._downheap(index)
         return element
 
     def pop(self):
         if len(self) == 0:
             raise ValueError('Empty heap.')
-        if len(self) == 1:
-            element = self.element(0)
-            self._data.pop()
-            return element
         return self.remove(0)
 
     def pushpop(self, element):
@@ -130,11 +130,9 @@ class HeapQ(ArrayBinaryTree):
         self._data.append(self._HeapNode(None, element, len(self)))
         func = self._key
         if self._ascending ^ (func(-1) >= func(0)):
-            print('direct giveback')
             element = self.element(-1)
             self._data.pop()
             return element
-        print('push then pop')
         self._data.pop()
         self.push(element)
         return self.pop()
@@ -142,29 +140,37 @@ class HeapQ(ArrayBinaryTree):
     def min(self):
         if self._ascending:
             return self.element(0)
-        return min(self._data)
+        func = self._key
+        return self.element(min((idx for idx in range(len(self))), key=func))
 
     def max(self):
         if not self._ascending:
             return self.element(0)
-        return max(self._data)
+        func = self._key
+        return self.element(max((idx for idx in range(len(self))), key=func))
 
     def update(self, index, element):
         index = self._positive_index(index)
         self.set_element(index, element)
         parent_idx = self._parent(index)
-        if parent_idx and (self._ascending ^ (self._key(index) >= self._key(parent_idx))):
+        func = self._key
+        if parent_idx and (self._ascending ^ (func(index) >= func(parent_idx))):
             self._upheap(index)
         else:
             self._downheap(index)
 
     def heapify(self, iterables=None, key=None, ascending=None):
+        if key is not None:
+            self._key = key
+        if ascending is not None:
+            self._ascending = ascending
         self._build_tree(iterables, key, ascending)
 
     def nlargest(self, n):
         original = self._data.copy()
         if self._ascending:
             self.heapify(ascending=False)
+            self.list_all(self.breadth_first)
         result = [self.pop() for _ in range(n)]
 
         # recover to original heap, including indices of each element
@@ -176,7 +182,7 @@ class HeapQ(ArrayBinaryTree):
     def nsmallest(self, n):
         original = self._data.copy()
         if not self._ascending:
-            self.heapify()
+            self.heapify(ascending=True)
         result = [self.pop() for _ in range(n)]
 
         # recover to original heap, including indices of each element
@@ -188,20 +194,28 @@ class HeapQ(ArrayBinaryTree):
     def sort(self, key=None, ascending=None):
         if key is not None:
             self._key = key
-        if ascending is not None and (ascending != self._ascending):
-            self._ascending = ascending
-            self.heapify()
+        ascending = not ascending if ascending is not None else not self._ascending
+        self.heapify(ascending=ascending)
         for i in range(len(self)-1, 0, -1):
             self[0], self[i] = self[i], self[0]
+            self.set_index(i, i)
+            self.set_index(0, 0)
             self._downheap(0, i)
-        return [self.element(idx) for idx in range(len(self)-1, -1, -1)]
+        self._ascending = not self._ascending
+        return [self.element(idx) for idx in range(len(self))]
 
 
 if __name__ == '__main__':
-    nums = 4, 3, 7, 8, 1, 0, 11, 34, 2
-    h = HeapQ(nums, ascending=False, key=lambda x: x % 10)
+    nums1 = 4, 3, 7, 8, 1, 0, 11, 34, 2
+    nums2 = 2, 9, 4, 8, 0, 32, 6, 7, 18, 112
+    str1 = 'j', 'ja', 'Ja', 't', 'tt', 'T', 'TT', 'J'
+    h = HeapQ(nums1, ascending=False)
     h.list_all(h.breadth_first)
-    print(h.pushpop(435))
-    print(h)
-    print(len(h))
+    print(h.sort())
+    print(h.remove(2))
+    print(h.sort())
     h.list_all(h.breadth_first)
+    # print(h.pushpop(435))
+    # print(h)
+    # print(len(h))
+    # h.list_all(h.breadth_first)
