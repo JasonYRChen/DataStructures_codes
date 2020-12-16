@@ -53,7 +53,7 @@ class SeperateChaining(BaseHashTable):
     def _build_dict(self, dict_iter):
         if isinstance(dict_iter, Mapping):
             dict_iter = list(dict_iter.items())
-        elif isinstance(dict_iter, list):
+        elif isinstance(dict_iter, Sequence):
             dict_iter = list(dict_iter)
         else:
             raise TypeError('Invalid type of instance. Make sure the argument is dict-like or list of tuples')
