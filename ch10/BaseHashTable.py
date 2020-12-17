@@ -15,7 +15,7 @@ class BaseHashTable(MutableMapping):
     class _Item:
         __slots__ = '_key', '_value'
 
-        def __init__(self, key=None, value=None):
+        def __init__(self, key=[], value=None):
             self._key = key
             self._value = value
 
@@ -37,8 +37,8 @@ class BaseHashTable(MutableMapping):
             l_max._pwd = l_max._PropertyBase__pwd
             l_min._pwd = l_min._PropertyBase__pwd
             c._pwd = c._PropertyBase__pwd
-            self.load_factor_max = 0.5
-            self.load_factor_min = 0.2
+            self.load_factor_max = 0.5  # for expanding list
+            self.load_factor_min = 0.2  # for shrinking list
             self.buckets = 11
             self.prime = 109345121
             self.collision_step = 1
