@@ -33,7 +33,7 @@ class SeperateChaining(BaseHashTable):
             self._data[idx] = [self._Item(key, value)]
         self._size += 1
         if len(self) / self.buckets >= self.load_factor_max:
-            self._resize(2 * self.buckets)
+            self._resize(2 * self.buckets - 1)
 
     def __delitem__(self, key):
         idx = self._hash_func(key)
@@ -46,7 +46,7 @@ class SeperateChaining(BaseHashTable):
                     if not bucket:
                         self._data[idx] = self._Item()
                     if len(self) / self.buckets < self.load_factor_min:
-                        self._resize(self.buckets // 2)
+                        self._resize((self.buckets + 1) // 2)
                     return
         raise KeyError(f'Invalid key {key}')
 
@@ -92,14 +92,11 @@ if __name__ == '__main__':
     print(h)
     h2 = SeperateChaining(c)
     print('item number:', len(h2), 'data length:', len(h2._data))
-    print('item number:', len(h), 'data length:', len(h._data))
     print(h2)
-    h3 = SeperateChaining(d)
-    print('item number:', len(h3), 'data length:', len(h3._data))
-    print('item number:', len(h2), 'data length:', len(h2._data))
-    print('item number:', len(h), 'data length:', len(h._data))
-    print(h3)
     h.update(h2)
     print('item number:', len(h), 'data length:', len(h._data))
     print(h)
-    
+    h['sc'] = h2
+    print('item number:', len(h), 'data length:', len(h._data))
+    print(h)
+
