@@ -5,7 +5,7 @@ from collections.abc import Mapping, Sequence
 class SeperateChaining(BaseHashTable):
     def __repr__(self):
         strings = []
-        for k, v in self:
+        for k, v in self.items():
             strings.append(f"{k}={v}")
         strings = ', '.join(strings)
         return f"{self.__class__.__name__}({strings})"
@@ -85,7 +85,7 @@ if __name__ == '__main__':
     from string import ascii_letters as al
     a = {c: i for i, c in enumerate(al[:10])}
     b = list(a.items())
-    c = {c: i for i, c in enumerate(al[:1])}
+    c = {c: i for i, c in enumerate(al[11:19])}
     d = {c: i for i, c in enumerate(al[:15])}
     h = SeperateChaining(a)
     print('item number:', len(h), 'data length:', len(h._data))
@@ -99,3 +99,7 @@ if __name__ == '__main__':
     print('item number:', len(h2), 'data length:', len(h2._data))
     print('item number:', len(h), 'data length:', len(h._data))
     print(h3)
+    h.update(h2)
+    print('item number:', len(h), 'data length:', len(h._data))
+    print(h)
+    
