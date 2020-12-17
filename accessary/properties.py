@@ -59,6 +59,13 @@ class PrimeProperty(PropertyBase):
         super().__set__(instance, value)
 
 
+class CollisionStepProperty(PropertyBase):
+    def __set__(self, instance, value):
+        if value < 0:
+            raise ValueError('Collision step should be non-negative integer')
+        super().__set__(instance, value)
+
+
 def class_property_deco(prop=PropertyBase):
     def inner(cls):
         for name, descriptor in cls.__dict__.items():
