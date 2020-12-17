@@ -60,7 +60,7 @@ class BaseHashTable(MutableMapping):
         raise NotImplementedError
 
     def __iter__(self):
-        for item in self.items():
+        for item in self.keys():
             yield item
 
     def _build_dict(self, dict_iter):
