@@ -58,7 +58,6 @@ class SeperateChaining(BaseHashTable):
         else:
             raise TypeError('Invalid type of instance. Make sure the argument is dict-like or list of tuples')
 
-        self._size = 0
         for key, value in dict_iter:
             self[key] = value
 
