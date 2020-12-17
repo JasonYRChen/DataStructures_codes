@@ -1,6 +1,7 @@
 from collections.abc import MutableMapping
 from random import randrange
-from accessary.properties import LoadFactorProperty, BucketProperty, PrimeProperty, class_property_deco
+from accessary.properties import LoadFactorProperty, BucketProperty, PrimeProperty
+from accessary.properties import class_property_deco, CollisionStepProperty
 
 
 @class_property_deco()
@@ -9,6 +10,7 @@ class BaseHashTable(MutableMapping):
     load_factor_min = LoadFactorProperty()
     buckets = BucketProperty()
     prime = PrimeProperty()
+    collision_step = CollisionStepProperty()
 
     class _Item:
         __slots__ = '_key', '_value'
@@ -28,15 +30,18 @@ class BaseHashTable(MutableMapping):
 
     def __init__(self, dict_iter=None):
         with BaseHashTable.__dict__['buckets'] as b, BaseHashTable.__dict__['load_factor_max'] as l_max, \
-                BaseHashTable.__dict__['load_factor_min'] as l_min, BaseHashTable.__dict__['prime'] as p:
+                BaseHashTable.__dict__['load_factor_min'] as l_min, BaseHashTable.__dict__['prime'] as p, \
+                BaseHashTable.__dict__['collision_step'] as c:
             b._pwd = b._PropertyBase__pwd
             p._pwd = p._PropertyBase__pwd
             l_max._pwd = l_max._PropertyBase__pwd
             l_min._pwd = l_min._PropertyBase__pwd
+            c._pwd = c._PropertyBase__pwd
             self.load_factor_max = 0.5
             self.load_factor_min = 0.2
             self.buckets = 11
             self.prime = 109345121
+            self.collision_step = 1
         self._a = randrange(1, self.prime)
         self._b = randrange(self.prime)
         self._data = [self._Item()] * self.buckets
