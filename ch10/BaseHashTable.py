@@ -76,6 +76,7 @@ class BaseHashTable(MutableMapping):
             b._pwd = b._PropertyBase__pwd
             self.buckets = buckets
         self._data = [self._Item()] * buckets
+        self._size = 0
         self._build_dict(old_dict)
 
     def items(self):
