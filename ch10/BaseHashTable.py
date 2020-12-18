@@ -1,32 +1,16 @@
-from collections.abc import MutableMapping
+from ch10.BaseMap import BaseMap
 from random import randrange
 from accessary.properties import LoadFactorProperty, BucketProperty, PrimeProperty
 from accessary.properties import class_property_deco, CollisionStepProperty
 
 
 @class_property_deco()
-class BaseHashTable(MutableMapping):
+class BaseHashTable(BaseMap):
     load_factor_max = LoadFactorProperty()
     load_factor_min = LoadFactorProperty()
     buckets = BucketProperty()
     prime = PrimeProperty()
     collision_step = CollisionStepProperty()
-
-    class _Item:
-        __slots__ = '_key', '_value'
-
-        def __init__(self, key=[], value=None):
-            self._key = key
-            self._value = value
-
-        def __repr__(self):
-            return f"{self._key}={self._value}"
-
-        def __eq__(self, other):
-            return (self._key == other._key) and (self._value == other._value)
-
-        def __ne__(self, other):
-            return not self == other
 
     def __init__(self, dict_iter=None):
         with BaseHashTable.__dict__['buckets'] as b, BaseHashTable.__dict__['load_factor_max'] as l_max, \
@@ -54,15 +38,6 @@ class BaseHashTable(MutableMapping):
 
     def __len__(self):
         return self._size
-
-    def __getitem__(self, key):
-        raise NotImplementedError
-
-    def __setitem__(self, key, value):
-        raise NotImplementedError
-
-    def __delitem__(self, key):
-        raise NotImplementedError
 
     def __iter__(self):
         yield from self.keys()
