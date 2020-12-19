@@ -1,2 +1,3 @@
-a = {'a': 1, 'b': 2}
-print(list(a))
+a = []
+a.insert(1, 'haha')
+print(a)
