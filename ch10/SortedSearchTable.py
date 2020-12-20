@@ -79,10 +79,10 @@ class SortedSearchTable(BaseMap):
         return s, None
 
     def find_min(self):
-        return self._data[0]._key, self._data[0]._value
+        return (self._data[0]._key, self._data[0]._value) if len(self) else None
 
     def find_max(self):
-        return self._data[-1]._key, self._data[-1]._value
+        return (self._data[-1]._key, self._data[-1]._value) if len(self) else None
 
     def find_lt(self, key):
         idx, _ = self._binary_search(key)
