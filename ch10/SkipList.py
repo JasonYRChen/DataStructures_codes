@@ -1,5 +1,5 @@
 from ch10.BaseMap import BaseMap
-from collections.abc import Mapping, Sequence
+from collections.abc import Mapping
 from random import randrange
 from math import log2, floor
 
@@ -16,7 +16,10 @@ class SkipList(BaseMap):
             self._next_level = None
 
         def __repr__(self):
+            if self._key == ['-inf'] or self._key == ['+inf']:
+                return f"({self._key})"
             return f"({self._key}={self._value})"
+            # return f"(k={self._key}, n={self._next._key if self._next is not None else None}, p={self._prev._key if self._prev is not None else None}, pl={self._prev_level._key if self._prev_level is not None else None}, nl={self._next_level._key if self._next_level is not None else None}) "
 
     def __init__(self, dict_iter=None):
         self._start = None
@@ -45,17 +48,22 @@ class SkipList(BaseMap):
             self._self_tower(self._Node(key, value), nodes)
             self._size += 1
             if floor(log2(len(self))) > self._height:
-                self._build_dict(list(self.items()))
+                self._build_dict(self.items())
 
     def __delitem__(self, key):
         node, nodes = self._search_node(key)
         if key != node._key:
             raise KeyError(f'Invalid key {key}')
-        prev = nodes.pop()
-        while prev._next._key == key:
-            prev._next, prev._next._next._prev = prev._next._next, prev
-            prev = nodes.pop()
+
+        while nodes:
+            pop_node = nodes.pop()
+            if pop_node._key == key:
+                pop_node._prev._next, pop_node._next._prev = pop_node._next, pop_node._prev
+            else:
+                break
         self._size -= 1
+        if floor(log2(len(self))) < self._height:
+            self._build_dict(self.items())
 
     def __iter__(self):
         yield from self.keys()
@@ -137,16 +145,48 @@ class SkipList(BaseMap):
         for node in self._main_branch():
             yield node._value
 
-    def print_all(self):
-        pass
+    def print_all(self, node=None, seq={}, column_width=10):
+        if node is None:
+            node = self._start
+        if node._next_level:
+            self.print_all(node._next_level, seq)
+            nodes_before = 0
+            while node:
+                space = (seq[str(node._key)] - nodes_before - 1) * column_width
+                print(f"{' ' * space}{str(node):{column_width}}", end='')
+                nodes_before = seq[str(node._key)]
+                node = node._next
+            print()
+        else:
+            n = 0
+            while node:
+                print(f"{str(node):{column_width}}", end='')
+                seq[str(node._key)] = n
+                node = node._next
+                n += 1
+            print()
 
 
 if __name__ == '__main__':
-    s = SkipList()
-    s['c'] = 3
-    s['a'] = 1
-    s['e'] = 5
-    s['f'] = 6
-    s['b'] = 2
+    from string import ascii_letters as al
+
+    a = {k: v for v, k in enumerate(al[:4])}
+    b = list(a.items())
+    c = {k: v for v, k in enumerate(al[6:10])}
+    s = SkipList(b)
+    # s['c'] = 3
+    # s['a'] = 11
+    # s['e'] = 5
+    # s[['a']] = 6
+    # s['z'] = 2
     print(s)
     print(f"len: {len(s)}, height: {s._height}")
+    s.print_all()
+    # del s['h']
+    # print(s)
+    # print(f"len: {len(s)}, height: {s._height}")
+    # s.print_all()
+    s.update(c)
+    print(s)
+    print(f"len: {len(s)}, height: {s._height}")
+    s.print_all()
