@@ -9,8 +9,23 @@ class BinarySearchTree(BinaryTree):
         """
         __slots__ = '_key'
 
-        def __init__(self, key=None):
+        def __init__(self, key=[]):
             self._key = key
+
+        def __lt__(self, other):
+            return self._key < other._key
+
+        def __ge__(self, other):
+            return self._key >= other._key
+
+        def __le__(self, other):
+            return self._key <= other._key
+
+        def __eq__(self, other):
+            return self._key == other._key
+
+        def __gt__(self, other):
+            return self._key > other._key
 
     def _search_node(self, key, node=None):
         """ Return node on target or the nearest node"""
@@ -29,8 +44,10 @@ class BinarySearchTree(BinaryTree):
             while self._right(node):
                 node = self._right(node)
             return node
+        if node == self._first():
+            return None
         parent = self._parent(node)
-        while parent and node == self._left(parent):
+        while self._left(parent) and node == self._left(parent):
             parent, node = self._parent(parent), parent
         return parent
 
@@ -40,29 +57,35 @@ class BinarySearchTree(BinaryTree):
             while self._left(node):
                 node = self._left(node)
             return node
+        if node == self._last():
+            return None
         parent = self._parent(node)
-        while parent and node == self._right(parent):
+        while self._right(parent) and node == self._right(parent):
             parent, node = self._parent(parent), parent
         return parent
 
     def _first(self):
         node = self._root()
-        while node:
+        while self._left(node):
             node = self._left(node)
         return node
 
     def _last(self):
         node = self._root()
-        while node:
+        while self._right(node):
             node = self._right(node)
         return node
 
-    def _sort_iter(self, start=None, end=None, ascending=True):
+    def _sort(self, start=None, end=None, ascending=True):
         start = self._first() if start is None else start
         end = self._last() if end is None else end
-        start, end = (start, end) if ascending else (end, start)
+        if start >= end:
+            start, end = start, start
+        else:
+            start, end = (start, end) if ascending else (end, start)
         mode = self._after if ascending else self._before
-        while start != end:
+        func = self._Node.__le__ if ascending else self._Node.__ge__
+        while start is not None and func(start, end):
             yield start
             start = mode(start)
 
@@ -74,6 +97,9 @@ class BinarySearchTree(BinaryTree):
             yield self._left(node)
         if self._right(node):
             yield self._right(node)
+
+    def _children_num(self, node):
+        return len(list(self._children(node)))
 
     def _height(self, node=None):
         node = self._root() if node is None else node
@@ -87,4 +113,4 @@ class BinarySearchTree(BinaryTree):
         return 1 + self._depth(self._parent(node))
 
     def _is_leaf(self, node):
-        return bool(list(self._children(node)))
+        return self._children_num(node) == 0
