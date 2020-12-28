@@ -30,6 +30,8 @@ class BinarySearchTree(BinaryTree):
     def _search_node(self, key, node=None):
         """ Return node on target or the nearest node"""
         node = self._root() if node is None else node
+        if not isinstance(node, self._Node):
+            return node
         if (key == node._key) or self._is_leaf(node):
             return node
         if (key > node._key) and (self._right(node)):
