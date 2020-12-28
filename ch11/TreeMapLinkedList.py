@@ -1,5 +1,6 @@
 from ch11.BinarySearchTree.BinarySearchTree import BinarySearchTree
 from collections.abc import MutableMapping, Mapping
+from math import floor, log2
 
 
 class TreeMapLinkedList(BinarySearchTree, MutableMapping):
@@ -44,13 +45,16 @@ class TreeMapLinkedList(BinarySearchTree, MutableMapping):
         key = self._valid_key(key)
         node = self._search_node(key)
         if node is None or key != node._key:
+            new_node = self._Node(key, value, node)
             if node is None:
-                self._root_node = self._Node(key, value)
+                self._root_node = new_node
             elif key < node._key:
-                node._left = self._Node(key, value, node)
+                node._left = new_node
             else:
-                node._right = self._Node(key, value, node)
+                node._right = new_node
             self._size += 1
+            if floor(log2(len(self))) < self._height():
+                self._rotate(new_node)
         else:
             node._value = value
 
@@ -120,13 +124,35 @@ class TreeMapLinkedList(BinarySearchTree, MutableMapping):
         if node._right:
             self._print_all(node._right, level+1)
 
+    def _rotate(self, node):
+        parent, grand_parent = node._parent, node._parent._parent
+        if grand_parent and ((parent <= node <= grand_parent) or (parent > node > grand_parent)):
+            self._interchange(node, parent)
+            parent = grand_parent
+        self._interchange(node, parent)
+
+    def _interchange(self, node, parent):
+        node._parent = parent._parent
+        if parent._parent is None:
+            self._root_node = node
+        elif parent._parent._left and parent._parent._left == parent:
+            parent._parent._left = node
+        elif parent._parent._right and parent._parent._right == parent:
+            parent._parent._right = node
+
+        if parent._left and node == parent._left:
+            node._right, parent._left = parent, node._right
+        else:
+            node._left, parent._right = parent, node._left
+        parent._parent = node
+
 
 if __name__ == '__main__':
     from string import ascii_letters as al
 
     a = {(k, v) for v, k in enumerate(al[:10], 1)}
     b = [(k, v) for v, k in enumerate(al[:10][::-1], 1)]
-    t = TreeMapLinkedList(b)
+    t = TreeMapLinkedList(a)
     # t['m'] = 13
     # t['f'] = 6
     # t['a'] = 1
@@ -144,9 +170,10 @@ if __name__ == '__main__':
     print('len:', len(t))
     print(t)
     t._print_all()
+    print('len:', len(t), 'floor:', floor(log2(len(t))), 'height:', t._height())
     # del t['f']
     # # del t['w']
     # print('len:', len(t))
     # print(t)
     # t._print_all()
-    print(t['i'])
+
