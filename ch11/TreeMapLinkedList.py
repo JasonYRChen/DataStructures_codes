@@ -53,8 +53,6 @@ class TreeMapLinkedList(BinarySearchTree, MutableMapping):
             else:
                 node._right = new_node
             self._size += 1
-            if floor(log2(len(self))) < self._height():
-                self._rotate(new_node)
         else:
             node._value = value
 
@@ -123,28 +121,6 @@ class TreeMapLinkedList(BinarySearchTree, MutableMapping):
         print('    ' * level, node, sep='')
         if node._right:
             self._print_all(node._right, level+1)
-
-    def _rotate(self, node):
-        parent, grand_parent = node._parent, node._parent._parent
-        if grand_parent and ((parent <= node <= grand_parent) or (parent > node > grand_parent)):
-            self._interchange(node, parent)
-            parent = grand_parent
-        self._interchange(node, parent)
-
-    def _interchange(self, node, parent):
-        node._parent = parent._parent
-        if parent._parent is None:
-            self._root_node = node
-        elif parent._parent._left and parent._parent._left == parent:
-            parent._parent._left = node
-        elif parent._parent._right and parent._parent._right == parent:
-            parent._parent._right = node
-
-        if parent._left and node == parent._left:
-            node._right, parent._left = parent, node._right
-        else:
-            node._left, parent._right = parent, node._left
-        parent._parent = node
 
 
 if __name__ == '__main__':
