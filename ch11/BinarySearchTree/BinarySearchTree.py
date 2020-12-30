@@ -22,6 +22,8 @@ class BinarySearchTree(BinaryTree):
             return self._key <= other._key
 
         def __eq__(self, other):
+            if other is None:
+                return False
             return self._key == other._key
 
         def __gt__(self, other):
