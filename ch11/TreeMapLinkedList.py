@@ -61,8 +61,9 @@ class TreeMapLinkedList(BinarySearchTree, MutableMapping):
         node = self._search_node(key)
         if key != node._key:
             raise KeyError(f"Invalid key {key}")
-        self._delete(node)
+        node = self._delete(node)
         self._size -= 1
+        self._node_initialize(node)
 
     def __iter__(self):
         for node in self._sort():
@@ -80,12 +81,13 @@ class TreeMapLinkedList(BinarySearchTree, MutableMapping):
                 node._parent._right = None if children == [] else children[0]
             if children:
                 children[0]._parent = node._parent
-            self._node_initialize(node)
+            return node
         else:
             node_before = self._before(node)
             new_key, new_value = node_before._key, node_before._value
             self._delete(node_before)
             node._key, node._value = new_key, new_value
+            return node
 
     def _build_map(self, dict_iter):
         if isinstance(dict_iter, Mapping):
