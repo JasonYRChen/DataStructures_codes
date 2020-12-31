@@ -37,16 +37,20 @@ class AVLTree(TreeMapLinkedList):
 
     def _rebalance(self, node, method=None):
         if method is None:
-            method = self._rotation_insert
+            method = self._rotation_rebalance
         method(node)
 
-    def _rotation_insert(self, node):
-        if (self._depth(node) + 1) > 2:
-            self._rotate(node)
+    def _rotation_rebalance(self, node):
+        while node._parent is not None and node._parent._parent is not None:
+            l_height = self._height(node._parent._parent._left)
+            r_height = self._height(node._parent._parent._right)
+            if abs(l_height - r_height) > 1:
+                return self._rotate(node)
+            node = node._parent
 
     def _rotate(self, node):
         parent, grand_parent = node._parent, node._parent._parent
-        if grand_parent and ((parent <= node <= grand_parent) or (parent > node > grand_parent)):
+        if (parent <= node <= grand_parent) or (parent > node > grand_parent):
             self._interchange(node, parent)
             parent = node
         return self._interchange(parent, grand_parent)
