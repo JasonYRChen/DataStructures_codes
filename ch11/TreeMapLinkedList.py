@@ -85,9 +85,9 @@ class TreeMapLinkedList(BinarySearchTree, MutableMapping):
         else:
             node_before = self._before(node)
             new_key, new_value = node_before._key, node_before._value
-            self._delete(node_before)
+            node_before = self._delete(node_before)
             node._key, node._value = new_key, new_value
-            return node
+            return node_before
 
     def _build_map(self, dict_iter):
         if isinstance(dict_iter, Mapping):
