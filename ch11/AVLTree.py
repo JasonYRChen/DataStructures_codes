@@ -1,5 +1,4 @@
 from ch11.TreeMapLinkedList import TreeMapLinkedList
-from math import log2, ceil
 
 
 class AVLTree(TreeMapLinkedList):
@@ -15,7 +14,7 @@ class AVLTree(TreeMapLinkedList):
             else:
                 node._right = new_node
             self._size += 1
-            self._rebalance(new_node)
+            self._rebalance(new_node, mode='set')
         else:
             node._value = value
 
@@ -26,26 +25,38 @@ class AVLTree(TreeMapLinkedList):
             raise KeyError(f"Invalid key {key}")
         self._size -= 1
         node = self._delete(node)
-        # children_num = self._children_num(node)
-        # if children_num == 1:
-
+        self._rebalance(node, mode='del')
+        self._node_initialize(node)
 
     def _height(self, node):
         if node is None:
             return 0
         return 1 + max(self._height(node._left), self._height(node._right))
 
-    def _rebalance(self, node, method=None):
+    def _tall_child(self, node):
+        is_left = True if self._height(node._left) >= self._height(node._right) else False
+        return node._left if is_left else node._right
+
+    def _rebalance(self, node, method=None, mode=None):
         if method is None:
             method = self._rotation_rebalance
-        method(node)
+        method(node, mode=mode)
 
-    def _rotation_rebalance(self, node):
+    def _rotation_rebalance(self, node, *, mode='set', **_):
+        if mode == 'del':
+            node = node._parent
+            child = self._tall_child(node)
+            node = child if child is not None else node
+            grand_child = self._tall_child(node)
+            node = grand_child if grand_child is not None else node
+
         while node._parent is not None and node._parent._parent is not None:
             l_height = self._height(node._parent._parent._left)
             r_height = self._height(node._parent._parent._right)
-            if abs(l_height - r_height) > 1:
+            if mode == 'set' and abs(l_height - r_height) > 1:
                 return self._rotate(node)
+            elif mode == 'del' and abs(l_height - r_height) > 1:
+                self._rotate(node)
             node = node._parent
 
     def _rotate(self, node):
@@ -89,11 +100,16 @@ class AVLTree(TreeMapLinkedList):
 if __name__ == '__main__':
     from string import ascii_letters as al
 
-    a = {(k, v) for v, k in enumerate(al[:20], 1)}
+    a = {(k, v) for v, k in enumerate(al[:52], 1)}
     b = [(k, v) for v, k in enumerate(al[:10][::-1], 1)]
     c = [('c', 3), ('a', 1), ('d', 4), ('i', 9), ('g', 7), ('e', 5), ('b', 2), ('f', 6), ('j', 10), ('h', 8)]
     d = [('c', 3), ('b', 2), ('a', 1)]
+    e = [('t', 20), ('m', 13), ('k', 11), ('g', 7), ('q', 17), ('h', 8), ('p', 16), ('e', 5), ('i', 9), ('n', 14), ('r', 18), ('s', 19), ('o', 15), ('c', 3), ('f', 6), ('j', 10), ('a', 1), ('d', 4), ('u', 21), ('b', 2), ('l', 12)]
     t = AVLTree(a)
+    print('len:', len(t))
+    print(t)
+    t._print_all()
+    del t['h']
     print('len:', len(t))
     print(t)
     t._print_all()
