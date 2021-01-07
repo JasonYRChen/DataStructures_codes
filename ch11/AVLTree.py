@@ -43,58 +43,49 @@ class AVLTree(TreeMapLinkedList):
         method(node, mode=mode)
 
     def _rotation_rebalance(self, node, *, mode='set', **_):
-        if mode == 'del':
+        while node is not None:
+            l_height = self._height(node._left)
+            r_height = self._height(node._right)
+            if abs(l_height - r_height) > 1:
+                node = self._tall_child(node)
+                node = self._tall_child(node)
+                node = self._restructure_rotate(node)
+                if mode == 'set':
+                    break
             node = node._parent
-            child = self._tall_child(node)
-            node = child if child is not None else node
-            grand_child = self._tall_child(node)
-            node = grand_child if grand_child is not None else node
 
-        while node._parent is not None and node._parent._parent is not None:
-            l_height = self._height(node._parent._parent._left)
-            r_height = self._height(node._parent._parent._right)
-            if mode == 'set' and abs(l_height - r_height) > 1:
-                return self._rotate(node)
-            elif mode == 'del' and abs(l_height - r_height) > 1:
-                self._rotate(node)
-            node = node._parent
+    def _restructure_rotate(self, node):
+        parent, grand_parent = node._parent, node._parent._parent
+        if (parent <= node <= grand_parent) or (parent > node > grand_parent):
+            self._rotate(node)
+            parent = node
+        return self._rotate(parent)
 
     def _rotate(self, node):
         parent, grand_parent = node._parent, node._parent._parent
-        if (parent <= node <= grand_parent) or (parent > node > grand_parent):
-            self._interchange(node, parent)
-            parent = node
-        return self._interchange(parent, grand_parent)
-
-    def _interchange(self, node, parent):
-        node._parent = parent._parent
-        if parent._parent is None:
-            self._root_node = node
-        elif parent._parent._left and parent._parent._left == parent:
-            parent._parent._left = node
-        elif parent._parent._right and parent._parent._right == parent:
-            parent._parent._right = node
-
-        if parent._left and node == parent._left:
-            node._right, parent._left = parent, node._right
-            if parent._left:
-                parent._left._parent = parent
+        if grand_parent:
+            self._connect(node, grand_parent, grand_parent._left==parent)
         else:
-            node._left, parent._right = parent, node._left
-            if parent._right:
-                parent._right._parent = parent
-        parent._parent = node
+            self._connect(node, grand_parent, True)
+        is_left = node==parent._left
+        if is_left:
+            self._connect(node._right, parent, is_left)
+            self._connect(parent, node, not is_left)
+        else:
+            self._connect(node._left, parent, is_left)
+            self._connect(parent, node, not is_left)
         return node
 
-
-
-
-    def __getitem__(self, key):
-        key = self._valid_key(key)
-        node = self._search_node(key)
-        if key != node._key:
-            raise KeyError(f"Invalid key {key}")
-        return node
+    def _connect(self, child, parent, is_left):
+        if child:
+            child._parent = parent
+        if parent:
+            if is_left:
+                parent._left = child
+            else:
+                parent._right = child
+        else:
+            self._root_node = child
 
 
 if __name__ == '__main__':
@@ -105,11 +96,12 @@ if __name__ == '__main__':
     c = [('c', 3), ('a', 1), ('d', 4), ('i', 9), ('g', 7), ('e', 5), ('b', 2), ('f', 6), ('j', 10), ('h', 8)]
     d = [('c', 3), ('b', 2), ('a', 1)]
     e = [('t', 20), ('m', 13), ('k', 11), ('g', 7), ('q', 17), ('h', 8), ('p', 16), ('e', 5), ('i', 9), ('n', 14), ('r', 18), ('s', 19), ('o', 15), ('c', 3), ('f', 6), ('j', 10), ('a', 1), ('d', 4), ('u', 21), ('b', 2), ('l', 12)]
-    t = AVLTree(a)
+    t = AVLTree(c)
     print('len:', len(t))
     print(t)
     t._print_all()
-    del t['h']
+    del t['e']
+    del t['f']
     print('len:', len(t))
     print(t)
     t._print_all()
