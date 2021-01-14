@@ -1,4 +1,4 @@
-from collections.abc import MutableMapping
+from collections.abc import MutableMapping, Mapping
 from itertools import zip_longest
 
 
@@ -103,9 +103,11 @@ class TwoFourTree(MutableMapping):
             self[index] = None
             return node
 
-    def __init__(self):
-        self._root = None
+    def __init__(self, maps=None):
+        self._root = self._Node24()
         self._size = 0
+        if maps:
+            self._build_map(maps)
 
     def __getitem__(self, key):
         key = self._key_validation(key)
@@ -160,6 +162,7 @@ class TwoFourTree(MutableMapping):
                 if len(result) == 1:
                     return None, node24
                 return result
+        return None, node24  # should only be reached by root configuration
 
     def _split_iter(self, node24):
         if len(node24) == 4:
@@ -184,6 +187,11 @@ class TwoFourTree(MutableMapping):
         new_node24.items.insert(0, node24.items.pop(2))
         new_node24.children.insert(0, node24.children.pop(3))
         new_node24.children.insert(1, node24.children.pop(3))
+        for child in new_node24.children:
+            if child:
+                child.parent = new_node24
+            else:
+                break
 
         parent.children.insert(insert_idx+1, new_node24)
         return parent
@@ -194,10 +202,20 @@ class TwoFourTree(MutableMapping):
                 return i
 
     def _build_map(self, maps):
-        pass
+        if isinstance(maps, Mapping):
+            maps = maps.items()
+        for key, value in maps:
+            self[key] = value
 
-    def print_all(self):
-        pass
+    def print_all(self, rate=4):
+        for level, item in self._print_all(self._root, 0):
+            print(' ' * level * rate, item, sep='')
+
+    def _print_all(self, node24, level):
+        yield level, node24.items
+        for child in node24.children:
+            if child:
+                yield from self._print_all(child, level+1)
 
     @staticmethod
     def _key_validation(key):
@@ -206,6 +224,8 @@ class TwoFourTree(MutableMapping):
 
 
 if __name__ == '__main__':
+    from string import ascii_letters as al
+
     node = TwoFourTree._Node
     ls = TwoFourTree._List
     node24 = TwoFourTree._Node24
@@ -230,19 +250,29 @@ if __name__ == '__main__':
         N1.children[i] = Node
         Node.parent = N1
 
-    # T1[21] = '21U'
-    # T1[100] = '100G'
-    # T1[30] = '30I'
-    # print(T1)
-    # print(N4)
-    # T1._split(N4)
+    T2 = TwoFourTree()
+    a = [(10, 'k'), (4, 'e'), (12, 'm'), (7, 'h'), (1, 'b'), (9, 'j'), (2, 'c'), (11, 'l'), (5, 'f'), (8, 'i'), (3, 'd'), (6, 'g'), (0, 'a')]
+
+    for i, char in a:
+        T2[i] = char
+    print(T2)
+    print('len:', len(T2))
+    print(T2._root)
+    T2.print_all()
+
+    # T1[12] = '12L'
     # print(T1)
     # print(N1)
-    # print(N4)
-    # print(T1[90])
-    N1.add_items(12, '12L')
-    N1.add_items(19, '19V')
-    print(N1)
-    print(T1._split(N1))
-    print(N1)
-    print(T1._root)
+    # print(N3)
+    # print()
+    # T1[13] = '13M'
+    # # print(T1)
+    # # print(N1)
+    # # print(N1.children[1])
+    # # print(N1.children[2])
+    # T1[14] = '14N'
+    # T1[16] = '16P'
+    # T1[17] = '17Q'
+    # print(T1)
+    # print(T1._root)
+    # print(N1)
