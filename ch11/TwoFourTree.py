@@ -53,6 +53,9 @@ class TwoFourTree(MutableMapping):
             self.items[idx] = TwoFourTree._Node(key, value)
             self.items.sort()
 
+        def is_leaf(self):
+            return not any(self.children)
+
     class _List:
         __slots__ = 'list'
 
@@ -103,6 +106,15 @@ class TwoFourTree(MutableMapping):
             self[index] = None
             return node
 
+        def index(self, target):
+            for i, item in enumerate(self.list):
+                if item == target:
+                    return i
+            return None
+
+        def is_empty(self):
+            return not any(self.list)
+
     def __init__(self, maps=None):
         self._root = self._Node24()
         self._size = 0
@@ -128,6 +140,42 @@ class TwoFourTree(MutableMapping):
 
     def __delitem__(self, key):
         key = self._key_validation(key)
+        node, node24 = self._search(key, self._root)
+        if node is None:
+            raise KeyError(f'Invalid key {key}')
+
+        leaf_node24, index = self._before(node24, node)
+        del_node = node24.items.pop(node24.items.index(node))
+        self._size -= 1
+        # always move the blank to the leaf
+        if not node24.is_leaf():
+            self._transfer(index, leaf_node24, node24)
+            node24 = leaf_node24
+
+        if node24.items.is_empty() and node24 != self._root:
+            self._parent2child(node24)  # transfer item from parent to child
+            sibling, right = self._siblings(node24)
+            if len(sibling.items) > 1:
+                self._sibling2parent(sibling, right)  # transfer item from sibling to parent
+            else:
+                # parent = node24.parent
+                while node24 != self._root and len(node24.parent.items) < len(node24.parent.children) - 1:
+                    sibling, right = self._siblings(node24)
+                    to_fuse, be_fused = (node24, sibling) if right else (sibling, node24)
+                    fused = self._fuse(to_fuse, be_fused)
+                    # fusion
+                    parent = fused.parent
+                    parent.children.pop(parent.children.index(be_fused))
+                    self._split_iter(fused)  # make sure split happen if fused's items number reach to 4
+
+                    if parent == self._root and parent.items.is_empty():
+                        self._root = fused
+                        break
+                    if parent.items.is_empty():
+                        self._parent2child(parent)
+
+                    node24 = parent
+        return del_node.value
 
     def __repr__(self):
         content = ', '.join(repr(node) for node in self._sequential_yield(self._root))
@@ -175,7 +223,7 @@ class TwoFourTree(MutableMapping):
         if parent is None:
             parent = TwoFourTree._Node24()
             self._root, parent.children[0], node24.parent = parent, node24, parent
-        insert_idx = self._node24_idx_in_parent(node24)
+        insert_idx = node24.parent.children.index(node24)
 
         # insert node to parent
         upward_node = node24.items.pop(2)
@@ -195,11 +243,6 @@ class TwoFourTree(MutableMapping):
 
         parent.children.insert(insert_idx+1, new_node24)
         return parent
-
-    def _node24_idx_in_parent(self, node24):
-        for i, item in enumerate(node24.parent.children):
-            if item == node24:
-                return i
 
     def _build_map(self, maps):
         if isinstance(maps, Mapping):
@@ -221,6 +264,53 @@ class TwoFourTree(MutableMapping):
     def _key_validation(key):
         hash(key)
         return key
+
+    def _transfer(self, index, from_node24, to_node24):
+        node = from_node24.items.pop(index)
+        to_node24.add_items(node.key, node.value)
+
+    def _fuse(self, to_fuse, be_fused):
+        # Caution: To use this method, to_fuse node24 should always be on the left of be_fused node24
+        for node in be_fused.items:
+            to_fuse.add_items(node.key, node.value)
+
+        index = len(to_fuse.children)
+        for node24 in be_fused.children:
+            node24.parent = to_fuse
+            to_fuse.children.insert(index, node24)
+            index += 1
+        return to_fuse
+
+    def _before(self, node24, node):
+        index = node24.items.index(node)
+        while not node24.is_leaf():
+            node24 = node24.children[index]
+            index = len(node24.children) - 1
+        return node24, len(node24.items) - 1
+
+    def _siblings(self, node24):
+        # The second returned value indicates the sibling is on the left or right of node24
+        parent = node24.parent
+        index = parent.children.index(node24)
+        if index == len(parent.children) - 1:
+            return parent.children[index-1], False
+        else:
+            return parent.children[index+1], True
+
+    def _sibling2parent(self, sibling, right=True):
+        parent = sibling.parent
+        if right:
+            self._transfer(0, sibling, parent)
+        else:
+            self._transfer(len(sibling.items) - 1, sibling, parent)
+        return sibling
+
+    def _parent2child(self, node24):
+        parent = node24.parent
+        index = parent.children.index(node24)
+        if index == len(parent.items):
+            index -= 1
+        self._transfer(index, parent, node24)
 
 
 if __name__ == '__main__':
@@ -250,29 +340,28 @@ if __name__ == '__main__':
         N1.children[i] = Node
         Node.parent = N1
 
-    T2 = TwoFourTree()
     a = [(10, 'k'), (4, 'e'), (12, 'm'), (7, 'h'), (1, 'b'), (9, 'j'), (2, 'c'), (11, 'l'), (5, 'f'), (8, 'i'), (3, 'd'), (6, 'g'), (0, 'a')]
-
-    for i, char in a:
-        T2[i] = char
+    b = [(0, 'a'), (1, 'b'), (12, 'm'), (4, 'e'), (6, 'g'), (9, 'j'), (3, 'd'), (14, 'o'), (19, 't'), (10, 'k'), (7, 'h'), (13, 'n'), (18, 's'), (15, 'p'), (16, 'q'), (8, 'i'), (5, 'f'), (11, 'l'), (2, 'c'), (17, 'r')]
+    # T2 = TwoFourTree()
+    # for i, char in a:
+    #     T2[i] = char
+    T2 = TwoFourTree(b)
     print(T2)
     print('len:', len(T2))
     print(T2._root)
     T2.print_all()
 
-    # T1[12] = '12L'
-    # print(T1)
-    # print(N1)
-    # print(N3)
-    # print()
-    # T1[13] = '13M'
-    # # print(T1)
-    # # print(N1)
-    # # print(N1.children[1])
-    # # print(N1.children[2])
-    # T1[14] = '14N'
-    # T1[16] = '16P'
-    # T1[17] = '17Q'
-    # print(T1)
-    # print(T1._root)
-    # print(N1)
+    to_del = [6, 3, 2, 9, 12]
+    # to_del = [12]
+    for key in to_del:
+        del T2[key]
+        print(T2)
+        print('len:', len(T2))
+        print(T2._root)
+        T2.print_all()
+    T2[7.7] = '7.7'
+    T2[7.8] = '7.8'
+    print(T2)
+    print('len:', len(T2))
+    print(T2._root)
+    T2.print_all()
