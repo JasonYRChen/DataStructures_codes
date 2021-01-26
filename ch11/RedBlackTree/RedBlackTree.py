@@ -37,7 +37,21 @@ class RedBlackTree(BinarySearchTree):
             node.value = value
 
     def __delitem__(self, key):
-        pass
+        key = self.valid_key(key)
+        node = self.search(key, self._root)
+        if key != node.key:
+            raise KeyError(f"Invalid key '{key}'")
+        self._size -= 1
+        if not self.is_leaf(node):
+            node_before = self.before(node)
+            node.key, node.value = node_before.key, node_before.value
+            node = node_before
+
+        sibling = self._sibling(node)
+        child = node.left if node.left else node.right
+        self._relink(child, node.parent, node == node.parent.left if node.parent else None)
+        if not node.red:
+            self._del_node(sibling)
 
     def _rotate(self, node):
         p_node, g_node = node.parent, node.parent.parent
@@ -120,6 +134,55 @@ class RedBlackTree(BinarySearchTree):
                 node = self._set_rotate(node)
         return node
 
+    def _del_red_sibling(self, sibling):
+        """
+        For case if sibling node is red in delete mode
+        """
+        parent = sibling.parent
+        is_left = sibling == parent.left
+        subtree = sibling.right if is_left else sibling.left
+        self._relink(sibling, parent.parent, parent == parent.parent.left if parent.parent else None)
+        self._relink(parent, sibling, not is_left)
+        self._relink(subtree, parent, is_left)
+        sibling.red = False
+        parent.red = True
+        return parent.left if is_left else parent.right
+
+    def _del_2nodes(self, sibling):
+        """
+        For case  if sibling node is black and its children are black or Nones
+        """
+        parent = sibling.parent
+        is_fixed = parent.red
+        sibling.red, parent.red = True, False
+        return sibling if is_fixed else self._sibling(parent)
+
+    def _del_3nodes(self, sibling):
+        """
+        For case if sibling node is black and has a red child
+        """
+        parent = sibling.parent
+        parent_color = parent.red
+        child = sibling.left if sibling.left and sibling.left.red else sibling.right
+        node = self._rotate(child)
+        node.red = parent_color
+        node.left.red = False
+        node.right.red = False
+        return node
+
+    def _del_node(self, sibling):
+        if sibling.red:
+            sibling = self._del_red_sibling(sibling)
+            return self._del_node(sibling)
+
+        c1, c2 = [c for c in self._children(sibling)]
+        if (c1 and c1.red) or (c2 and c2.red):
+            return self._del_3nodes(sibling)
+
+        red_parent = sibling.parent.red
+        node = self._del_2nodes(sibling)
+        return node if red_parent else self._del_node(node)
+
 
 if __name__ == '__main__':
     a = [(7, 'h'), (13, 'n'), (14, 'o'), (6, 'g'), (4, 'e'), (12, 'm'), (8, 'i'), (2, 'c'), (5, 'f'), (0, 'a'),
@@ -127,6 +190,10 @@ if __name__ == '__main__':
     b = [(4, 4), (7, 7), (12, 12), (15, 15), (3, 3), (5, 5), (14, 14), (18, 18),
          (16, 16), (17, 17)]
     rbt = RedBlackTree(b)
+    print(rbt)
+    print('len:', len(rbt))
+    rbt.print_all()
+    del rbt[14]
     print(rbt)
     print('len:', len(rbt))
     rbt.print_all()
