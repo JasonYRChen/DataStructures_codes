@@ -31,8 +31,7 @@ def quick_sort2(seq, start, end):
     pivot, i = start, start+1
     while i < start+seq_len:
         if seq[i] < seq[pivot]:
-            temp = seq[i]
-            seq[pivot+1:i+1], seq[pivot] = seq[pivot:i], temp
+            seq[pivot+1:i+1], seq[pivot] = seq[pivot:i], seq[i]
             pivot += 1
         i += 1
     quick_sort2(seq, start, pivot)
