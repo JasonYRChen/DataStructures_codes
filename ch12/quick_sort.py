@@ -21,6 +21,7 @@ def quick_sort1(seq):
 
 
 def quick_sort2(seq, start, end):
+    # in-place sorting
     seq_len = end - start
     if seq_len < 2:
         return
@@ -36,7 +37,6 @@ def quick_sort2(seq, start, end):
         i += 1
     quick_sort2(seq, start, pivot)
     quick_sort2(seq, pivot+1, end)
-    return seq
 
 
 def testing(func, data, repeat):
@@ -58,3 +58,4 @@ a = [6.7, 3, 9, 11.2, 5, 32, 65, 7, 3, 11, 9]
 shuffle(a)
 print(a)
 print(quick_sort2(a, 0, len(a)))
+print(a)
