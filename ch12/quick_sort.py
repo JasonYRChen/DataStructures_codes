@@ -21,7 +21,7 @@ def quick_sort1(seq):
 
 
 def quick_sort2(seq, start, end):
-    # in-place sorting
+    # in-place sorting(?) with non-constant memory usage
     seq_len = end - start
     if seq_len < 2:
         return
@@ -36,6 +36,26 @@ def quick_sort2(seq, start, end):
         i += 1
     quick_sort2(seq, start, pivot)
     quick_sort2(seq, pivot+1, end)
+
+
+def quick_sort3(seq, start, end):
+    # in-place sorting
+    if end - start < 2:
+        return
+    pivot = randrange(start, end)
+    end -= 1
+    seq[pivot], seq[end] = seq[end], seq[pivot]
+    left, right = start, end - 1
+    while left <= right:
+        while seq[left] <= seq[end] and left <= right:
+            left += 1
+        while seq[right] > seq[end] and left <= right:
+            right -= 1
+        if left < right:
+            seq[left], seq[right] = seq[right], seq[left]
+    seq[end], seq[left] = seq[left], seq[end]
+    quick_sort3(seq, start, left)
+    quick_sort3(seq, left+1, end+1)
 
 
 def testing(func, data, repeat):
@@ -56,5 +76,6 @@ def testing(func, data, repeat):
 a = [6.7, 3, 9, 11.2, 5, 32, 65, 7, 3, 11, 9]
 shuffle(a)
 print(a)
-print(quick_sort2(a, 0, len(a)))
+quick_sort3(a, 0, len(a))
 print(a)
+print(a == [3, 3, 5, 6.7, 7, 9, 9, 11, 11.2, 32, 65])
