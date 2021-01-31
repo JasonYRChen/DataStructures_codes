@@ -58,24 +58,25 @@ def quick_sort3(seq, start, end):
     quick_sort3(seq, left+1, end+1)
 
 
-def testing(func, data, repeat):
+def testing(func, data, repeat, *args):
     start = time()
 
     for n in range(repeat):
-        func(data)
+        func(data, *args)
         print(f"{n} round")
     delta = time() - start
     print(f"Total laps: {delta}, average: {delta/repeat}")
 
 
-# data = list(range(1000000))
-# testing(quick_sort1, data, 5)
-# testing(quick_sort2, data, 5)
+data = list(range(1000000))
+testing(quick_sort1, data, 5)
+testing(quick_sort2, data, 5, 0, len(data))
+testing(quick_sort3, data, 5, 0, len(data))
 
 # a = list(range(3, 15))
-a = [6.7, 3, 9, 11.2, 5, 32, 65, 7, 3, 11, 9]
-shuffle(a)
-print(a)
-quick_sort3(a, 0, len(a))
-print(a)
-print(a == [3, 3, 5, 6.7, 7, 9, 9, 11, 11.2, 32, 65])
+# a = [6.7, 3, 9, 11.2, 5, 32, 65, 7, 3, 11, 9]
+# shuffle(a)
+# print(a)
+# quick_sort3(a, 0, len(a))
+# print(a)
+# print(a == [3, 3, 5, 6.7, 7, 9, 9, 11, 11.2, 32, 65])
