@@ -32,6 +32,6 @@ def boyer_moore(text, pattern):
     return -1
 
 
-t = 'asushisuchi'
-p = 'sushi'
+t = 'baabaaa'
+p = 'aaa'
 print(boyer_moore(t, p))
