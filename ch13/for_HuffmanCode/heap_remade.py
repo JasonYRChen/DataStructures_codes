@@ -39,18 +39,20 @@ class Heap:
 
     def _downward(self, index):
         while True:
-            l_idx, r_idx = self.left(index), self.right(index)
-            left = self.data[l_idx] if l_idx < len(self) else None
-            right = self.data[r_idx] if r_idx < len(self) else None
-            current = self.data[index]
-            if left and left < current and ((right and left < right) or not right):
-                self.data[l_idx], self.data[index] = self.data[index], self.data[l_idx]
-                index = l_idx
-            elif right and right < current:
-                self.data[r_idx], self.data[index] = self.data[index], self.data[r_idx]
-                index = r_idx
+            children = list(self._children(index))
+            child = min(children, key=lambda i: self.data[i]) if children else None
+            if child and (self.data[child] < self.data[index]):
+                self.data[child], self.data[index] = self.data[index], self.data[child]
+                index = child
             else:
                 break
+
+    def _children(self, index):
+        l_idx, r_idx = self.left(index), self.right(index)
+        if l_idx < len(self):
+            yield l_idx
+        if r_idx < len(self):
+            yield r_idx
 
     @staticmethod
     def left(index):
