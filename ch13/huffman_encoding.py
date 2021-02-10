@@ -4,21 +4,49 @@ from collections import defaultdict
 
 
 class HuffmanCode:
-    def __init__(self, string):
+    def __init__(self, string=''):
         self.tree = None
+        self.encode_dict = None
         if string != '':
-            table = self._freq_table(string)
-            self._build_tree(table)
+            self._build_tree(self._freq_table(string))
 
     def __repr__(self):
-        nodes = list(self._take_all_leaves(self.tree.root))
+        nodes = list(node for node, _ in self._take_all_leaves(self.tree.root))
         return f"{self.__class__.__name__}({', '.join(str(node.value)+': '+str(node.key) for node in nodes)})"
 
     def encode(self, string):
-        pass
+        if self.tree is None:
+            self._build_tree(self._freq_table(string))
+            self._encode_dict()
+        if self.encode_dict is None:
+            self._encode_dict()
+
+        code = ''
+        for char in string:
+            code += self.encode_dict[char]
+        return code
+
+    def _encode_dict(self):
+        encode_dict = {node.value: code for node, code in self._take_all_leaves(self.tree.root)}
+        self.encode_dict = encode_dict
+        return encode_dict
 
     def decode(self, code):
-        pass
+        node = self.tree.root
+        string = ''
+        for bin in code:
+            valid_bin = False
+            if bin == '0' and node.left:
+                node = node.left
+            elif bin == '1' and node.right:
+                node = node.right
+            if node.left is None and node.right is None:
+                string += node.value
+                node = self.tree.root
+                valid_bin = True
+        if not valid_bin:
+            raise ValueError('Invalid code. Incorrect decoding.')
+        return string
 
     def _build_tree(self, freq_table):
         heap = Heap()
@@ -40,17 +68,23 @@ class HuffmanCode:
             table[c] += 1
         return table
 
-    def _take_all_leaves(self, node):
+    def _take_all_leaves(self, node, code=''):
         if node.left is None and node.right is None:
-            yield node
+            yield node, code
         if node.left:
-            yield from self._take_all_leaves(node.left)
+            yield from self._take_all_leaves(node.left, code+'0')
         if node.right:
-            yield from self._take_all_leaves(node.right)
+            yield from self._take_all_leaves(node.right, code+'1')
 
 
 if __name__ == '__main__':
     s = 'This is a testing string containing many "s".'
-    h = HuffmanCode(s)
+    c = '11101111000111010000111010001000000110100101101110011010001100010111000101001101000110000010010010000101101000011010011010001100010011100001000101100011111011111100100'
+
+    h = HuffmanCode()
+    code = h.encode(s)
+    decode_s = h.decode(code)
     print(h)
-    h.tree.show_hierarchy()
+    print('Original string:', s)
+    print('Huffman code:', code)
+    print('Decoded string:', decode_s)
