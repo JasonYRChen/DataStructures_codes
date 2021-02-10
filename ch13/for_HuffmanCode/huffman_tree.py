@@ -34,12 +34,6 @@ class HuffmanTree:
         new_tree.root = new_node
         return new_tree
 
-    def __gt__(self, other):
-        return self.root.key > other
-
-    def __lt__(self, other):
-        return self.root.key < other
-
     def _connect(self, child, parent, is_left):
         if parent:
             if is_left:
@@ -48,6 +42,9 @@ class HuffmanTree:
                 parent.right = child
         if child:
             child.parent = parent
+
+    def key(self):
+        return self.root.key
 
     @staticmethod
     def is_leaf(node):
@@ -61,15 +58,15 @@ class HuffmanTree:
     def right(node):
         return node.right
 
-    def _inorder_traversal(self, node, level):
+    def _preorder_traversal(self, node, level):
         yield node, level
         if node.left:
-            yield from self._inorder_traversal(node.left, level+1)
+            yield from self._preorder_traversal(node.left, level+1)
         if node.right:
-            yield from self._inorder_traversal(node.right, level+1)
+            yield from self._preorder_traversal(node.right, level+1)
 
     def show_hierarchy(self):
-        for node, level in self._inorder_traversal(self.root, 0):
+        for node, level in self._preorder_traversal(self.root, 0):
             print(' ' * 4 * level, node, sep='')
 
 
