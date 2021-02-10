@@ -38,6 +38,6 @@ def lcs_string(seq1, seq2, lcs_number):
     return result
 
 
-s1 = 'abcdeft'
-s2 = 'tfedcba'
+s1 = 'tcaadbez'
+s2 = 'cbeadz'
 print(lcs_string(s1, s2, lcs_number(s1, s2)))
