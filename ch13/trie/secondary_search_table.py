@@ -2,7 +2,7 @@
 
 class Dictionary(dict):
     def __bool__(self):
-        for key in self.keys():
+        for _ in self.keys():
             return True
         return False
 
