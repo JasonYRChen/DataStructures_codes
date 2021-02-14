@@ -65,8 +65,24 @@ class Trie:
         else:
             yield word
 
+    def _yield_all(self, node, level=0):
+        for char, node in node.children.items():
+            yield level, char, node
+            yield from self._yield_all(node, level+1)
+
+    def show_trie(self):
+        old_level = 0
+        for level, char, node in self._yield_all(self.root):
+            if level <= old_level:
+                print(' ' * level, sep='', end='')
+            print(char, sep='', end='')
+            if not node.children:
+                print('', node.index)
+            old_level = level
+
 
 if __name__ == '__main__':
     p = "see a bear? sell stock! see a bull? buy stock! bid stock! bid stock! hear the bell? stop!"
     t = Trie(p)
     print(t)
+    t.show_trie()
