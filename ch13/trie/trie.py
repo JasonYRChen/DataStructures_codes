@@ -13,10 +13,9 @@ class Trie:
         def __repr__(self):
             return f"{self.children}, {self.index}"
 
-    def __init__(self, paragraph=None, children_type=Dictionary, parse_all=False):
+    def __init__(self, paragraph=None, children_type=Dictionary):
         self.children_type = children_type
         self.root = self._Node(self.children_type())
-        self.parse_all = parse_all
         if paragraph:
             self._build(paragraph)
 
