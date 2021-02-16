@@ -95,7 +95,7 @@ class Trie:
                 print('', node.index)
                 end = True
 
-    def reconstruction(self):
+    def restore(self):
         heap = Heap()
         for word, indices in self._word_in_trie(self.root):
             for index in indices:
@@ -105,8 +105,12 @@ class Trie:
 
 if __name__ == '__main__':
     # p = "see a bear? sell stock! see a bull? buy stock! bid stock! bid stock! hear the bell? stop!"
-    p = 'the thesis is all about thieves.'
+    # p = 'the thesis is all about thieves.'
+    p = """
+    The nature of sorting n items is based on a simple question:
+    does one item larger than another?
+    """
     t = Trie(p)
     print(t)
     t.show_trie()
-    print(t.reconstruction())
+    print(t.restore())
