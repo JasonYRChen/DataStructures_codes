@@ -109,11 +109,18 @@ if __name__ == "__main__":
     print(g)
     print()
 
+    # for vertex in g.vertices():
+    #     print(vertex)
+
     print(vs)
     g.remove_vertex(vs[1])
-    vs = list(g.vertex_dict.keys())
-    print(vs)
+    # vs = list(g.vertex_dict.keys())
+    # print(vs)
     print(g)
+    print(g.edge_count())
+    print(g.vertex_count())
+    print()
+    print(g.get_edge(vs[0], vs[1]))
 
     # es = list(g.edge_dict.keys())
     # print(es)
