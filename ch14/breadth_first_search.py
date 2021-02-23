@@ -13,11 +13,21 @@ def bfs_tree(graph, vertex, dict_search, out=True):
         vertices = next_vertices
 
 
+def bfs_forest(graph):
+    vertices = graph.vertices()
+    forest = {}
+    for vertex in vertices:
+        if vertex not in forest:
+            forest[vertex] = None
+            bfs_tree(graph, vertex, forest)
+    return forest
+
+
 if __name__ == '__main__':
     from string import ascii_letters as al
 
     g = BaseGraphAdjMap()
-    for c in al[:5]:
+    for c in al[:8]:
         g.insert_vertex(c)
 
     vs = {v.element: v for v in g.vertex_dict.keys()}
@@ -28,8 +38,10 @@ if __name__ == '__main__':
     g.insert_edge(vs['c'], vs['d'], element='c-d')
     g.insert_edge(vs['c'], vs['e'], element='c-e')
     g.insert_edge(vs['d'], vs['e'], element='d-e')
+    g.insert_edge(vs['f'], vs['g'], element='f-g')
+    g.insert_edge(vs['f'], vs['h'], element='f-h')
+    g.insert_edge(vs['g'], vs['h'], element='g-h')
     print(g)
     print()
-    tree = {vs['a']: None}
-    bfs_tree(g, vs['a'], tree)
-    print(tree)
+    forest = bfs_forest(g)
+    print(forest)
