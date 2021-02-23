@@ -25,7 +25,7 @@ class BaseGraphAdjMap:
             return self.vertices[0] if vertex != self.vertices[0] else self.vertices[1]
 
         def __repr__(self):
-            return f"Edge(e={self.element}, directed={self.directed})"
+            return f"Edge(e={self.element}, d={self.directed})"
 
     def __init__(self):
         """
@@ -39,7 +39,7 @@ class BaseGraphAdjMap:
         self.vertex_dict = {}
 
     def __repr__(self):
-        return f"{self.__class__.__name__}(edge={self.edge_dict}, vertices={self.vertex_dict})"
+        return f"{self.__class__.__name__}(edge={str(self.edge_dict.keys())[10:-1]}, vertices={self.vertex_dict})"
 
     def vertex_count(self):
         return len(self.vertex_dict)
@@ -63,7 +63,7 @@ class BaseGraphAdjMap:
         return len(self.vertex_dict[vertex][out])
 
     def incident_edges(self, vertex, out=True):
-        yield from self.vertex_dict[vertex][out]
+        yield from self.vertex_dict[vertex][out].items()
 
     def insert_vertex(self, element=None):
         vertex = self._Vertex(element)
@@ -113,14 +113,16 @@ if __name__ == "__main__":
     #     print(vertex)
 
     print(vs)
-    g.remove_vertex(vs[1])
+    # g.remove_vertex(vs[1])
     # vs = list(g.vertex_dict.keys())
     # print(vs)
-    print(g)
-    print(g.edge_count())
-    print(g.vertex_count())
-    print()
-    print(g.get_edge(vs[0], vs[1]))
+    # print(g)
+    # print(g.edge_count())
+    # print(g.vertex_count())
+    # print()
+    # print(g.get_edge(vs[0], vs[1]))
+    for v, e in g.incident_edges(vs[0]):
+        print(v, e)
 
     # es = list(g.edge_dict.keys())
     # print(es)
