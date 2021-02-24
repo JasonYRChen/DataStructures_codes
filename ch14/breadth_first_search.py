@@ -1,7 +1,18 @@
 from ch14.graphADT_AdjMap import BaseGraphAdjMap
+from collections import deque
 
 
 def bfs_tree(graph, vertex, dict_search, out=True):
+    vertices = deque([vertex])
+    while vertices:
+        vertex = vertices.popleft()
+        for v_oppo, edge in graph.incident_edges(vertex, out):
+            if v_oppo not in dict_search:
+                dict_search[v_oppo] = edge
+                vertices.append(v_oppo)
+
+
+def bfs_tree2(graph, vertex, dict_search, out=True):
     vertices = [vertex]
     while vertices:
         next_vertices = []
