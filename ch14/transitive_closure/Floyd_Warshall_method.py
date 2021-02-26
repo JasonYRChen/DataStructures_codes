@@ -6,11 +6,11 @@ def floyd_warshall(graph):
 
     for mid in graph.vertices():
         for start in graph.vertices():
-            if start != mid:
+            if start != mid and graph.get_edge(start, mid):
                 for end in graph.vertices():
                     valid_vertex = end != mid and end != start
-                    valid_edge = graph.get_edge(start, mid) and graph.get_edge(mid, end)
-                    if valid_vertex and valid_edge:
+                    edge_not_exist = graph.get_edge(start, end) is None
+                    if valid_vertex and graph.get_edge(mid, end) and edge_not_exist:
                         graph.insert_edge(start, end, True, f"{start.element}-{end.element}")
     return graph
 
