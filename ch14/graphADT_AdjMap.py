@@ -93,6 +93,14 @@ class BaseGraphAdjMap:
             del self.vertex_dict[start][False][end]
             del self.vertex_dict[end][True][start]
 
+    def copy(self):
+        new_edge_dict = self.edge_dict.copy()
+        new_vertex_dict = self.vertex_dict.copy()
+        graph = self.__class__()
+        graph.edge_dict = new_edge_dict
+        graph.vertex_dict = new_vertex_dict
+        return graph
+
 
 if __name__ == "__main__":
     from string import ascii_letters as al
@@ -109,10 +117,16 @@ if __name__ == "__main__":
     print(g)
     print()
 
+    g_copy = g.copy()
+    print(id(g.edge_dict))
+    print(id(g_copy.edge_dict))
+    print(id(g.vertex_dict))
+    print(id(g_copy.vertex_dict))
+
     # for vertex in g.vertices():
     #     print(vertex)
 
-    print(vs)
+    # print(vs)
     # g.remove_vertex(vs[1])
     # vs = list(g.vertex_dict.keys())
     # print(vs)
@@ -121,8 +135,8 @@ if __name__ == "__main__":
     # print(g.vertex_count())
     # print()
     # print(g.get_edge(vs[0], vs[1]))
-    for v, e in g.incident_edges(vs[0]):
-        print(v, e)
+    # for v, e in g.incident_edges(vs[0]):
+    #     print(v, e)
 
     # es = list(g.edge_dict.keys())
     # print(es)
