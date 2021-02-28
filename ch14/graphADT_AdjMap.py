@@ -41,11 +41,6 @@ class BaseGraphAdjMap:
     def __repr__(self):
         return f"{self.__class__.__name__}(edge={str(self.edge_dict.keys())[10:-1]}, vertices={self.vertex_dict})"
 
-    def __eq__(self, graph):
-        if not isinstance(graph, self.__class__):
-            raise TypeError(f'Not an instance of {self.__class__.__name__}')
-        return self.edge_dict == graph.edge_dict and self.vertex_dict == graph.vertex_dict
-
     def vertex_count(self):
         return len(self.vertex_dict)
 
