@@ -98,14 +98,6 @@ class BaseGraphAdjMap:
             del self.vertex_dict[start][False][end]
             del self.vertex_dict[end][True][start]
 
-    def copy(self):
-        new_edge_dict = self.edge_dict.copy()
-        new_vertex_dict = self.vertex_dict.copy()
-        graph = self.__class__()
-        graph.edge_dict = new_edge_dict
-        graph.vertex_dict = new_vertex_dict
-        return graph
-
 
 if __name__ == "__main__":
     from string import ascii_letters as al
