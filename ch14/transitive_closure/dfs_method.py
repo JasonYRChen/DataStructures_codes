@@ -1,4 +1,5 @@
 from ch14.graphADT_AdjMap import BaseGraphAdjMap
+from copy import deepcopy
 
 
 def dfs(graph, vertex_base, next_vertex, vertex_found):
@@ -12,7 +13,7 @@ def dfs(graph, vertex_base, next_vertex, vertex_found):
 
 
 def dfs_method(graph):
-    graph = graph.copy()
+    graph = deepcopy(graph)
 
     for vertex in graph.vertices():
         found = {vertex}
