@@ -1,8 +1,9 @@
 from ch14.graphADT_AdjMap import BaseGraphAdjMap
+from copy import deepcopy
 
 
 def floyd_warshall(graph):
-    graph = graph.copy()
+    graph = deepcopy(graph)
 
     for mid in graph.vertices():
         for start in graph.vertices():
