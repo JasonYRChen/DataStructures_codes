@@ -31,6 +31,9 @@ class Heap:
         self.data.append(self._Node(key, value))
         self._upward(len(self) - 1)
 
+    def __bool__(self):
+        return bool(self.data)
+
     def _upward(self, index):
         parent = self.parent(index)
         while parent >= 0 and self.data[parent] > self.data[index]:
