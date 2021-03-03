@@ -71,18 +71,19 @@ class Heap:
 
     def min(self):
         if self.data[0]:
-            return self.data[0].value
+            return self.data[0].key, self.data[0].value
         raise ValueError('Empty heap.')
 
     def pop_min(self):
         if not self.data:
             raise ValueError('Empty heap.')
         value = self.data[0].value
+        key = self.data[0].key
         last = self.data.pop()
         if len(self) > 0:
             self.data[0] = last
             self._downward(0)
-        return value
+        return key, value
 
 
 if __name__ == '__main__':
