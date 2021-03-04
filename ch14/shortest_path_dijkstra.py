@@ -61,6 +61,28 @@ def dijkstra_method_with_path(graph, start):
     return distances
 
 
+def reconstruct_path(graph, start, distances):
+    edges = {v: [] for v in graph.vertices()}
+    for vertex in distances:
+        if vertex != start:
+            for v_oppo, edge in graph.incident_edges(vertex, False):
+                if distances[vertex] == edge.element + distances[v_oppo]:
+                    edges[v_oppo].append(vertex)
+                    break
+
+    paths = {start: [start]}
+    to_process = [start]
+    while to_process:
+        vertex = to_process.pop()
+        v_oppos = edges[vertex]
+        for v_oppo in v_oppos:
+            new_path = paths[vertex].copy()
+            new_path.append(v_oppo)
+            paths[v_oppo] = new_path
+            to_process.append(v_oppo)
+    return paths
+
+
 if __name__ == '__main__':
     g = BaseGraphAdjMap()
     g.insert_vertex('BOS')
@@ -98,3 +120,10 @@ if __name__ == '__main__':
     d3 = dijkstra_method_with_path(g, vs[departure])
     print(d1)
     print(d3)
+    print()
+    paths = reconstruct_path(g, vs[departure], d1)
+    print(paths)
+
+    d4 = {k: v[1] for k, v in d3.items()}
+    print(d4)
+    print(paths == d4)
