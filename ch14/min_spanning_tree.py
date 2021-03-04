@@ -1,5 +1,4 @@
 from ch14.graphADT_AdjMap import BaseGraphAdjMap
-from copy import deepcopy
 from ch13.for_HuffmanCode.heap_remade import Heap
 
 
@@ -18,7 +17,20 @@ def min_spanning_tree(graph):
             for v_oppo, edge in graph.incident_edges(vertex, False):
                 if v_oppo in vertices:
                     heap[edge.element] = edge
-    return shortest_edges
+
+    tree = graph.__class__()
+    vertices = {}
+    for edge in shortest_edges:
+        v1, v2 = edge.endpoints()
+        v1_element, v2_element = v1.element, v2.element
+        if v1_element not in vertices:
+            v1 = tree.insert_vertex(v1_element)
+            vertices[v1_element] = v1
+        if v2_element not in vertices:
+            v2 = tree.insert_vertex(v2_element)
+            vertices[v2_element] = v2
+        tree.insert_edge(vertices[v1_element], vertices[v2_element], False, edge.element)
+    return tree
 
 
 if __name__ == '__main__':
