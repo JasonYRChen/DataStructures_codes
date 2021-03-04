@@ -68,6 +68,7 @@ class BaseGraphAdjMap:
     def insert_vertex(self, element=None):
         vertex = self._Vertex(element)
         self.vertex_dict[vertex] = {True: {}, False: {}}
+        return vertex
 
     def insert_edge(self, start, end, is_directed=False, element=None):
         edge = self._Edge(element, [start, end], is_directed)
@@ -77,6 +78,7 @@ class BaseGraphAdjMap:
         if not is_directed:
             self.vertex_dict[start][False][end] = edge
             self.vertex_dict[end][True][start] = edge
+        return edge
 
     def remove_vertex(self, vertex):
         for edge in list(self.edge_dict.keys()):
