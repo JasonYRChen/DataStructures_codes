@@ -11,7 +11,6 @@ def dijkstra_method(graph, start):
     heap = Heap([(0, start)])
     found = set()
     distances = {v: inf for v in graph.vertices()}
-    distances[start] = 0
     while heap and len(found) < graph.vertex_count():
         distance, vertex = heap.pop_min()
         if vertex not in found:
@@ -37,6 +36,28 @@ def dijkstra_method_simplify(graph, start):
             for v_oppo, edge in graph.incident_edges(vertex):
                 if v_oppo not in distances:
                     heap[edge.element+distances[vertex]] = v_oppo
+    return distances
+
+
+def dijkstra_method_with_path(graph, start):
+    """ This function can detect if start vertex can reach to any vertices in the
+        rest of the graph. If any vertex cannot be reached, then
+        distances[vertex cannot be reached] = inf.
+    """
+    heap = Heap([(0, [start])])
+    found = set()
+    distances = {v: inf for v in graph.vertices()}
+    while heap and len(found) < graph.vertex_count():
+        distance, path = heap.pop_min()
+        vertex = path[-1]
+        if vertex not in found:
+            found.add(vertex)
+            distances[vertex] = [distance, path.copy()]
+            for v_oppo, edge in graph.incident_edges(vertex):
+                if v_oppo not in found:
+                    new_path = path.copy()
+                    new_path.append(v_oppo)
+                    heap[edge.element+distances[vertex][0]] = new_path
     return distances
 
 
@@ -74,5 +95,6 @@ if __name__ == '__main__':
     departure = 'BWI'
     d1 = dijkstra_method(g, vs[departure])
     d2 = dijkstra_method_simplify(g, vs[departure])
+    d3 = dijkstra_method_with_path(g, vs[departure])
     print(d1)
-    print(d1 == d2)
+    print(d3)
