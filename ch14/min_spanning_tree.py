@@ -4,7 +4,7 @@ from ch13.for_HuffmanCode.heap_remade import Heap
 
 def prim_jarnik_method(graph):
     """
-    This method is not exactly the same code in the textbook, but the idea is the same.
+    This method is not exactly the same code as in the textbook, but the idea is the same.
     """
     vertices = {v for v in graph.vertices()}
     heap = Heap(((e.element, e) for _, e in graph.incident_edges(vertices.pop(), False)))
@@ -20,8 +20,33 @@ def prim_jarnik_method(graph):
             for v_oppo, edge in graph.incident_edges(vertex, False):
                 if v_oppo in vertices:
                     heap[edge.element] = edge
+    return shortest_edges
 
-    tree = graph.__class__()
+
+def kruskal_method(graph):
+    """
+    This method is not the same code as in the textbook, but the idea is the same.
+    """
+    clusters = {v: {v} for v in graph.vertices()}
+    heap = Heap(((e.element, e) for e in graph.edges()))
+    shortest_edges = set()
+
+    while (len(shortest_edges) < graph.vertex_count()-1) and heap:
+        _, edge = heap.pop_min()
+        v1, v2 = edge.endpoints()
+        c_v1, c_v2 = clusters[v1], clusters[v2]
+        if v2 not in clusters[v1]:
+            shortest_edges.add(edge)
+            # The rests merge two clusters and assign the merged one to each vertex inside
+            c_big, c_small = (c_v1, c_v2) if len(c_v1) > len(c_v2) else (c_v2, c_v1)
+            c_big.update(c_small)
+            for v in c_small:
+                clusters[v] = c_big
+    return shortest_edges
+
+
+def min_spanning_tree(shortest_edges, tree_class=BaseGraphAdjMap):
+    tree = tree_class()
     vertices = {}
     for edge in shortest_edges:
         v1, v2 = edge.endpoints()
@@ -66,6 +91,11 @@ if __name__ == '__main__':
     g.insert_edge(vs['BWI'], vs['JFK'], False, 184)
     g.insert_edge(vs['BWI'], vs['MIA'], False, 946)
     g.insert_edge(vs['BWI'], vs['ORD'], False, 621)
-    print(g)
+    # print(g)
     g2 = prim_jarnik_method(g)
+    g3 = kruskal_method(g)
     print(g2)
+    print(g3)
+    print(g2 == g3)
+    print(min_spanning_tree(g2))
+    print(min_spanning_tree(g3))
