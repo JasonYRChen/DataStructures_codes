@@ -27,7 +27,7 @@ def kruskal_method(graph):
     """
     This method is not the same code as in the textbook, but the idea is the same.
     """
-    clusters = {v: {v} for v in graph.vertices()}
+    clusters = {v: [v, {v}] for v in graph.vertices()}
     heap = Heap(((e.element, e) for e in graph.edges()))
     shortest_edges = set()
 
@@ -35,13 +35,14 @@ def kruskal_method(graph):
         _, edge = heap.pop_min()
         v1, v2 = edge.endpoints()
         c_v1, c_v2 = clusters[v1], clusters[v2]
-        if c_v1 != c_v2:
+        if c_v1[1] != c_v2[1]:
             shortest_edges.add(edge)
             # The rests merge two clusters and assign the merged one to each vertex inside
-            c_big, c_small = (c_v1, c_v2) if len(c_v1) > len(c_v2) else (c_v2, c_v1)
-            c_big.update(c_small)
-            for v in c_small:
-                clusters[v] = c_big
+            c_big, c_small = (c_v1, c_v2) if len(c_v1[1]) > len(c_v2[1]) else (c_v2, c_v1)
+            c_big[1].update(c_small[1])
+            clusters[c_small[0]][0] = c_big[0]
+            clusters[c_small[0]][1] = c_big[1]
+            c_small[1] = clusters[c_small[0]][1]
     return shortest_edges
 
 
