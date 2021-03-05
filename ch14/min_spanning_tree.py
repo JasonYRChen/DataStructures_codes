@@ -2,7 +2,10 @@ from ch14.graphADT_AdjMap import BaseGraphAdjMap
 from ch13.for_HuffmanCode.heap_remade import Heap
 
 
-def min_spanning_tree(graph):
+def prim_jarnik_method(graph):
+    """
+    This method is not exactly the same code in the textbook, but the idea is the same.
+    """
     vertices = {v for v in graph.vertices()}
     heap = Heap(((e.element, e) for _, e in graph.incident_edges(vertices.pop(), False)))
     shortest_edges = set()
@@ -64,5 +67,5 @@ if __name__ == '__main__':
     g.insert_edge(vs['BWI'], vs['MIA'], False, 946)
     g.insert_edge(vs['BWI'], vs['ORD'], False, 621)
     print(g)
-    g2 = min_spanning_tree(g)
+    g2 = prim_jarnik_method(g)
     print(g2)
