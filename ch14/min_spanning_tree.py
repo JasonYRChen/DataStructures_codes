@@ -35,7 +35,7 @@ def kruskal_method(graph):
         _, edge = heap.pop_min()
         v1, v2 = edge.endpoints()
         c_v1, c_v2 = clusters[v1], clusters[v2]
-        if v2 not in clusters[v1]:
+        if c_v1 != c_v2:
             shortest_edges.add(edge)
             # The rests merge two clusters and assign the merged one to each vertex inside
             c_big, c_small = (c_v1, c_v2) if len(c_v1) > len(c_v2) else (c_v2, c_v1)
