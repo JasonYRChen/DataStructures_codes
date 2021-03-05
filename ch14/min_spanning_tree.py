@@ -7,7 +7,7 @@ def min_spanning_tree(graph):
     heap = Heap(((e.element, e) for _, e in graph.incident_edges(vertices.pop(), False)))
     shortest_edges = set()
 
-    while vertices:
+    while vertices and heap:
         _, edge = heap.pop_min()
         v1, v2 = edge.endpoints()
         if (v1 not in vertices) ^ (v2 not in vertices):
